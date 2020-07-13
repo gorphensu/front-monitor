@@ -8,10 +8,10 @@ import env from '~/src/configs/env'
 const development = {
 
   /* normal */
-  host: '127.0.0.1',
+  host: '47.112.112.79',
   port: '3306',
   user: 'root',
-  password: '5f8b8a5d650637f8',
+  password: '123456',
   database: 'platform'
 }
 // 测试环境配置
