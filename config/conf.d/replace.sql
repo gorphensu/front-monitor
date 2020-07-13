@@ -1,0 +1,1 @@
+REPLACE INTO t_o_project (id, rate, display_name, project_name, c_desc, is_delete, create_ucid, update_ucid, create_time, update_time) VALUES (1, 100, 'apaas-web', 'apaas-web', '负责人:subin', 0, '', '', 0, 0);
