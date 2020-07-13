@@ -6,7 +6,7 @@ const development = {
   use: {
     alarm: false // 是否使用报警功能。如果启用，请在alarm配置里指定报警网址
   },
-  nginxLogFilePath: 'C:/green/nginx/logs' // nginx日志文件根路径，此路径下面的日志文件命名格式请参照readme
+  nginxLogFilePath: '/var/log/nginx/logs' // nginx日志文件根路径，此路径下面的日志文件命名格式请参照readme
 }
 // 测试环境配置
 const testing = development
