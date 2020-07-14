@@ -28,7 +28,7 @@ class TaskManager extends Base {
   async handle (args, options) {
     let that = this
     // 每分钟的第0秒启动
-    schedule.scheduleJob('0 */1 * * * * *', function () {
+    schedule.scheduleJob('0 */1 * * * *', function () {
       that.log('registerTaskRepeatPer1Minute 开始执行')
       that.execCommand('SaveLog:Nginx', []);
     })
