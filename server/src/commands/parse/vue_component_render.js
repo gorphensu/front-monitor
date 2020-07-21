@@ -38,6 +38,7 @@ class VueComponentRender extends ParseBase {
     let recordType = _.get(record, ['type'], '')
     let code = _.get(record, ['code'], '')
     let ucid = _.get(record, ['common', 'ucid'])
+    let browser = _.get(record, ['ua', 'browser'])
     let projectId = _.get(record, ['project_id'], '')
     let renderTime = _.get(record, ['detail', 'rendertime'], '')
     let pageCode = _.get(record, ['detail', 'pagecode'], '')
@@ -59,6 +60,9 @@ class VueComponentRender extends ParseBase {
     }
     if (!ucid) {
       return false
+    }
+    if (!browser) {
+      return
     }
     if (projectId < 0) {
       return false
@@ -82,6 +86,7 @@ class VueComponentRender extends ParseBase {
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
     let renderTime = _.get(record, ['detail', 'rendertime'], '')
+    let browser = _.get(record, ['ua', 'browser'])
     let pageCode = _.get(record, ['detail', 'pagecode'], '')
     let componentType = _.get(record, ['detail', 'componenttype'], '')
     let viewRule = _.get(record, ['detail', 'viewrule'], '')
@@ -97,7 +102,8 @@ class VueComponentRender extends ParseBase {
       pageCode,
       componentType,
       viewRule,
-      projectId
+      projectId,
+      browser
     }
 
     if (this.projectMap.has(projectId)) {
@@ -163,7 +169,8 @@ export default VueComponentRender
     rendertime: 168,
     url: '896938753782845517',
     ctrlcode: 'dropdownbox-900201764014395485',
-    componenttype: 'dropdownbox'
+    componenttype: 'dropdownbox',
+    pagecode: '896938753782845517'
   },
   extra: {},
   common: {

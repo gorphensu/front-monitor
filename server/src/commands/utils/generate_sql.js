@@ -398,6 +398,7 @@ TABLE_TEMPLATE[MULIT_T_O_VUE_COMPONENT_RENDER] = `(
   \`render_time\` int(20) NOT NULL DEFAULT '0' COMMENT '渲染时间',
   \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
   \`viewrule\` varchar(3000) DEFAULT '' COMMENT '控件协议',
+  \`browser\` varchar(255) NOT NULL DEFAULT '' COMMENT '浏览器信息',
   \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (\`id\`),

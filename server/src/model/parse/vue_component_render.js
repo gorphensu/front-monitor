@@ -15,6 +15,7 @@ const TABLE_COLUMN = [
   `render_time`,
   `pagecode`,
   `viewrule`,
+  `browser`,
   `create_time`,
   `update_time`,
 ]
@@ -42,6 +43,7 @@ async function insert(recordJson, projectId, createAt) {
     render_time: recordJson.renderTime,
     pagecode: recordJson.pageCode,
     viewrule: recordJson.viewRule,
+    browser: recordJson.browser,
     update_time: updateAt,
     create_time: updateAt
   }
