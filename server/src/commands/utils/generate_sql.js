@@ -32,6 +32,8 @@ const MUILT_T_O_SYSTEM_COLLECTION = 't_o_system_collection' // 设备记录表, 
 const MUILT_T_O_USER_FIRST_LOGIN_AT = 't_o_user_first_login_at' // 用户首次登陆表, 用于统计新课, 按项目分表, 命名规则: t_o_customer_first_login_at_项目id
 const MUILT_T_R_ERROR_SUMMARY = 't_r_error_summary' // 错误统计表,用于统计错误类型，错误名字
 
+const MULIT_T_O_VUE_COMPONENT_RENDER = 't_o_vue_component_render' // vue_component_render 统计vue控件的渲染时间
+
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '项目id',
@@ -385,6 +387,25 @@ TABLE_TEMPLATE[SINGLE_T_O_NEW_USER_SUMMARY] = `(
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='新用户统计表, 不分表';
 `
 
+// vue_component_render
+TABLE_TEMPLATE[MULIT_T_O_VUE_COMPONENT_RENDER] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`project_id\` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '要报警项目id',
+  \`ucid\` varchar(20) NOT NULL DEFAULT '' COMMENT '用户id',
+  \`count_type\` varchar(20) NOT NULL DEFAULT 'day' COMMENT '统计尺度(hour/day/month)',
+  \`count_at_time\` varchar(30) NOT NULL DEFAULT '' COMMENT '统计日期,格式根据统计尺度不同有三种可能,  hour => YYYY-MM-DD_HH, day => YYYY-MM-DD, month => YYYY-MM',
+  \`component_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`render_time\` int(20) NOT NULL DEFAULT '0' COMMENT '渲染时间',
+  \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`viewrule\` varchar DEFAULT '' COMMENT '控件协议',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_count_at_time_component_type\` (\`count_at_time\`,\`component_type\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录vue控件渲染时间';
+`
+
+
 function generate (baseTableName, projectId = '', tableTime = '') {
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
@@ -516,7 +537,8 @@ SET foreign_key_checks = 0;
           MUILT_T_R_PERFORMANCE,
           MUILT_T_O_SYSTEM_COLLECTION,
           MUILT_T_O_USER_FIRST_LOGIN_AT,
-          MUILT_T_R_ERROR_SUMMARY
+          MUILT_T_R_ERROR_SUMMARY,
+          MULIT_T_O_VUE_COMPONENT_RENDER
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

@@ -22,6 +22,7 @@ const registedCommandList = [
   './commands/parse/menu_click', //  解析菜单点击记录
   './commands/parse/performance', //  解析性能统计指标数据
   './commands/parse/user_first_login_at', //  录入新增用户
+  './commands/parse/vue_component_render', // 记录vue component的渲染时间
   
   './commands/save_log/parseNginxLog', // 将ngnix日志落在文件中
   // 从数据库中, 按时间段统计
