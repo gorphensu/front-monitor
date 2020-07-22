@@ -103,7 +103,7 @@ class VueComponentRender extends ParseBase {
       componentType,
       viewRule,
       projectId,
-      browser
+      browser: JSON.stringify(browser)
     }
 
     if (this.projectMap.has(projectId)) {

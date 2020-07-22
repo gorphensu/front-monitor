@@ -135,6 +135,9 @@ class TaskManager extends Base {
       that.log(`[按分钟] 解析kafka日志, 分析错误详情`)
       that.dispatchParseCommand('Parse:Monitor', twoMinuteAgoByMinute, nowByMinute)
 
+      that.log(`[按分钟] 上报vue控件渲染时间`)
+      that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
+
       that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)
       that.dispatchParseCommand('Summary:Error', twoMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
       that.dispatchParseCommand('Summary:Error', threeMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
