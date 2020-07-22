@@ -10,6 +10,7 @@ const LegalRecordCode = 11111
 
 const COUNT_TYPE_HOUR = DATE_FORMAT.UNIT.HOUR
 const COUNT_BY_HOUR_DATE_FORMAT = DATE_FORMAT.DATABASE_BY_HOUR
+const COUNT_BY_MINUTE_DATE_FORMAT = DATE_FORMAT.DATABASE_BY_MINUTE
 const COUNT_BY_SECOND_DATE_FORMAT = DATE_FORMAT.DATABASE_BY_SECOND
 
 /**
@@ -91,7 +92,7 @@ class VueComponentRender extends ParseBase {
     let componentType = _.get(record, ['detail', 'componenttype'], '')
     let viewRule = _.get(record, ['detail', 'viewrule'], '')
     let recordAt = _.get(record, ['time'], 0)
-    let countAtTime = moment.unix(recordAt).format(COUNT_BY_SECOND_DATE_FORMAT)
+    let countAtTime = moment.unix(recordAt).format(COUNT_BY_MINUTE_DATE_FORMAT)
     let countAtMap = new Map()
     let recordList = []
 
@@ -127,7 +128,7 @@ class VueComponentRender extends ParseBase {
     let successSaveCount = 0
     for (let [projectId, countAtMap] of this.projectMap) {
       for (let [countAtTime, recordList] of countAtMap) {
-        let countAt = moment(countAtTime, COUNT_BY_SECOND_DATE_FORMAT).unix()
+        let countAt = moment(countAtTime, COUNT_BY_MINUTE_DATE_FORMAT).unix()
         for (let vueRecord of recordList) {
           let isSuccess = await MVueComponentRender.insert(vueRecord, projectId, countAt)
           processRecordCount = processRecordCount + 1

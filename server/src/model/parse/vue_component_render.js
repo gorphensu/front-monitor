@@ -2,6 +2,8 @@ import moment from 'moment'
 import _ from 'lodash'
 import Knex from '~/src/library/mysql'
 import Logger from '~/src/library/logger'
+import DatabaseUtil from '~/src/library/utils/modules/database'
+import DATE_FORMAT from '~/src/constants/date_format'
 
 const BASE_TABLE_NAME = 't_o_vue_component_render'
 
@@ -59,6 +61,43 @@ async function insert(recordJson, projectId, createAt) {
   return insertId
 }
 
+async function getList(projectId, startAt, finishAt, condition = {}, countType = DATE_FORMAT.UNIT.MINUTE) {
+  let startAtMoment = moment.unix(startAt)
+  let tableName = getTableName(projectId, startAt)
+  let recordList = []
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
+  Logger.log('parse\vue_component_render.js tableNameList', tableNameList)
+  let countAtTimeList = []
+  // 获取所有可能的countAtTime
+  for (let countStartAtMoment = startAtMoment.clone(); countStartAtMoment.unix() < finishAt; countStartAtMoment = countStartAtMoment.clone().add(1, countType)) {
+    let formatCountAtTime = countStartAtMoment.format(DATE_FORMAT.DATABASE_BY_UNIT[countType])
+    countAtTimeList.push(formatCountAtTime)
+  }
+  Logger.log('parse\vue_component_render.js countAtTimeList', countAtTimeList)
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .where('count_type', '=', countType)
+      .whereIn('count_at_time', 'like', countAtTimeList)
+      .andWhere(builder => {
+        if (_.has(condition, ['component_type'])) {
+          builder.whereIn('component_type', condition['component_type'])
+        }
+        if (_.has(condition, ['browser'])) {
+          builder.where('browser', 'like', `%${condition['browser']}%`)
+        }
+      })
+      .catch((e) => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    recordList = recordList.concat(rawRecordList)
+  }
+  return recordList
+}
+
 export default {
-  insert
+  insert,
+  getList
 }
