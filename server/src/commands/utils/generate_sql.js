@@ -33,6 +33,7 @@ const MUILT_T_O_USER_FIRST_LOGIN_AT = 't_o_user_first_login_at' // 用户首次�
 const MUILT_T_R_ERROR_SUMMARY = 't_r_error_summary' // 错误统计表,用于统计错误类型，错误名字
 
 const MULIT_T_O_VUE_COMPONENT_RENDER = 't_o_vue_component_render' // vue_component_render 统计vue控件的渲染时间
+const MULIT_T_O_VUE_COMPONENT_OPERATION = 't_o_vue_component_operation' // vue_component_operation 统计vue控件的各个方法的影响渲染的时间
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -406,8 +407,30 @@ TABLE_TEMPLATE[MULIT_T_O_VUE_COMPONENT_RENDER] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录vue控件渲染时间';
 `
 
+// MULIT_T_O_VUE_COMPONENT_OPERATION
+TABLE_TEMPLATE[MULIT_T_O_VUE_COMPONENT_OPERATION] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`project_id\` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '要报警项目id',
+  \`ucid\` varchar(20) NOT NULL DEFAULT '' COMMENT '用户id',
+  \`item_id\` varchar(20) NOT NULL DEFAULT '' COMMENT '上报id',
+  \`count_type\` varchar(20) NOT NULL DEFAULT 'day' COMMENT '统计尺度(hour/day/month)',
+  \`count_at_time\` int(20) NOT NULL DEFAULT '0' COMMENT '上报创建时间',
+  \`component_code\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件code',
+  \`component_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`operation_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '花费时间',
+  \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`detail\` varchar(3000) DEFAULT '' COMMENT '操作详细信息',
+  \`browser\` varchar(255) NOT NULL DEFAULT '' COMMENT '浏览器信息',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_count_at_time_component_type\` (\`count_at_time\`,\`component_type\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录vue控件渲染时间';
+`
 
-function generate (baseTableName, projectId = '', tableTime = '') {
+
+function generate(baseTableName, projectId = '', tableTime = '') {
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
 
@@ -440,6 +463,8 @@ function generate (baseTableName, projectId = '', tableTime = '') {
       break
     case MULIT_T_O_VUE_COMPONENT_RENDER:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+    case MULIT_T_O_VUE_COMPONENT_OPERATION:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
     default:
   }
 
@@ -449,7 +474,7 @@ CREATE TABLE  IF NOT EXISTS  \`${fininalTableName}\` ${content}
 }
 
 class GenerateSQL extends Base {
-  static get signature () {
+  static get signature() {
     return `
        Utils:GenerateSQL
        {projectIdList:项目id列表,逗号分割}
@@ -458,11 +483,11 @@ class GenerateSQL extends Base {
        `
   }
 
-  static get description () {
+  static get description() {
     return '生成项目在指定日期范围内的建表SQL'
   }
 
-  async execute (args, options) {
+  async execute(args, options) {
     let { projectIdList, startAtYm, finishAtYm } = args
     projectIdList = projectIdList.split(',')
     if (_.isEmpty(projectIdList)) {
@@ -541,7 +566,8 @@ SET foreign_key_checks = 0;
           MUILT_T_O_SYSTEM_COLLECTION,
           MUILT_T_O_USER_FIRST_LOGIN_AT,
           MUILT_T_R_ERROR_SUMMARY,
-          MULIT_T_O_VUE_COMPONENT_RENDER
+          MULIT_T_O_VUE_COMPONENT_RENDER,
+          MULIT_T_O_VUE_COMPONENT_OPERATION
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`
@@ -559,7 +585,7 @@ SET foreign_key_checks = 0;
    * @param {*} args
    * @param {*} options
    */
-  async handle (args, options) {
+  async handle(args, options) {
     await this.execute(args, options).catch(e => {
       this.log('catch error')
       this.log(e.stack)
@@ -571,7 +597,7 @@ SET foreign_key_checks = 0;
    * @param {*} args
    * @param {*} options
    */
-  async log (message) {
+  async log(message) {
     console.log(message)
   }
 }

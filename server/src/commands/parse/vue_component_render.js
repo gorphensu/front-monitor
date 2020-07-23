@@ -41,10 +41,14 @@ class VueComponentRender extends ParseBase {
     let ucid = _.get(record, ['common', 'ucid'])
     let browser = _.get(record, ['ua', 'browser'])
     let projectId = _.get(record, ['project_id'], '')
+    let itemId = _.get(record, ['detail', 'itemid'], '')
     let renderTime = _.get(record, ['detail', 'rendertime'], '')
+    let costTime = _.get(record, ['detail', 'costTime'], '')
     let pageCode = _.get(record, ['detail', 'pagecode'], '')
     let componentType = _.get(record, ['detail', 'componenttype'], '')
+    let operationType = _.get(record, ['detail', 'operationtype'])
     let viewRule = _.get(record, ['detail', 'viewrule'], '')
+    let detail = _.get(record, ['detail', 'detail'], '')
     code = parseInt(code)
     projectId = parseInt(projectId)
     if (recordType !== LegalRecordType) {
@@ -63,12 +67,18 @@ class VueComponentRender extends ParseBase {
       return false
     }
     if (!browser) {
-      return
+      return false
     }
     if (projectId < 0) {
       return false
     }
-    if (!renderTime) {
+    if (!itemId) {
+      return false
+    }
+    if (!operationType) {
+      return false
+    }
+    if (!renderTime && !costTime) {
       return false
     }
     if (!componentType) {
@@ -87,22 +97,34 @@ class VueComponentRender extends ParseBase {
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
     let renderTime = _.get(record, ['detail', 'rendertime'], '')
+    let costTime = _.get(record, ['detail', 'costTime'], '')
     let browser = _.get(record, ['ua', 'browser'])
+    let itemId = _.get(record, ['detail', 'itemid'], '')
     let pageCode = _.get(record, ['detail', 'pagecode'], '')
     let componentType = _.get(record, ['detail', 'componenttype'], '')
+    let componentCode = _.get(record, ['detail', 'ctrlcode'], '')
+    let operationType = _.get(record, ['detail', 'operationtype'])
     let viewRule = _.get(record, ['detail', 'viewrule'], '')
+    let detail = _.get(record, ['detail', 'detail'], '')
     let recordAt = _.get(record, ['time'], 0)
     let countAtTime = moment.unix(recordAt).format(COUNT_BY_MINUTE_DATE_FORMAT)
+    let countAtTimeStamp = recordAt
     let countAtMap = new Map()
     let recordList = []
 
     let vueRecord = {
+      itemId,
       countAtTime,
+      countAtTimeStamp,
       ucid,
       renderTime,
+      costTime,
       pageCode,
       componentType,
+      operationType,
+      componentCode,
       viewRule,
+      detail,
       projectId,
       browser: JSON.stringify(browser)
     }
@@ -131,6 +153,7 @@ class VueComponentRender extends ParseBase {
         let countAt = moment(countAtTime, COUNT_BY_MINUTE_DATE_FORMAT).unix()
         for (let vueRecord of recordList) {
           let isSuccess = await MVueComponentRender.insert(vueRecord, projectId, countAt)
+          isSuccess = await MVueComponentRender.insertOperation(vueRecord, projectId, countAt)
           processRecordCount = processRecordCount + 1
           if (isSuccess) {
             successSaveCount = successSaveCount + 1
@@ -208,4 +231,18 @@ export default VueComponentRender
   province: '广东',
   city: '广州'
 }
+*/
+/*
+1. beforeCreate中创建一个记录控件的id，后面的记录都携带上这个id
+2. 埋点
+  2.1 render time
+  2.2 mounted time
+  2.3 关键代码埋点？
+  2.4 setView updateProperty setOption
+  2.5 destroy time
+3. 表结构 origin
+id | itemid | component_type | component_code | pagecode | operation_type | cost_time | detail | browser | create_time | update_time
+
+4. 表结构 result
+id | itemid | component_type | cost_times
 */

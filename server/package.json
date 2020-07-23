@@ -12,7 +12,7 @@
     "build": "babel src --copy-files -d dist --verbose",
     "production": "cross-env  NODE_ENV=production node dist/app.js",
     "start": "npm run dev",
-    "dev": "cross-env SET NODE_ENV=development nodemon dist/app.js",
+    "dev": "cross-env NODE_ENV=development nodemon dist/app.js",
     "fee": "cross-env NODE_ENV=development node dist/fee.js",
     "test_fee": "cross-env  NODE_ENV=testing node dist/fee.js",
     "test_start": "cross-env  NODE_ENV=testing node dist/app.js",

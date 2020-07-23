@@ -11,6 +11,8 @@ import AlarmLog from '@/view/alarm-log/index.vue'
 import Management from '@/view/management/index.vue'
 import ErrorPage401 from '@/view/error-page/401.vue'
 import ErrorPage500 from '@/view/error-page/500.vue'
+
+import VueComponentRender from '@/view/vue-component-render'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -118,6 +120,15 @@ export default [
           title: '页面性能',
         },
         component: ViewPerformance,
+      },
+      {
+        path: 'vue-component-render',
+        name: 'vue-控件性能',
+        meta: {
+          icon: 'md-speedometer',
+          title: 'vue控件性能',
+        },
+        component: VueComponentRender,
       },
       {
         path: 'error-dashboard',

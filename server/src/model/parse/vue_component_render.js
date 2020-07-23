@@ -22,6 +22,23 @@ const TABLE_COLUMN = [
   `update_time`,
 ]
 
+const TABLE_OPERATION_COLUMN = [
+  `id`,
+  `project_id`,
+  `ucid`,
+  `item_id`,
+  `count_type`,
+  `count_at_time`,
+  `component_type`,
+  `operation_type`,
+  `cost_time`,
+  `pagecode`,
+  `detail`,
+  `browser`,
+  `create_time`,
+  `update_time`,
+]
+
 /**
  * 获取表名
  * @param {*} projectId
@@ -73,16 +90,16 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
     let formatCountAtTime = countStartAtMoment.format(DATE_FORMAT.DATABASE_BY_UNIT[countType])
     countAtTimeList.push(formatCountAtTime)
   }
-  Logger.log('parse\vue_component_render.js countAtTimeList', countAtTimeList)
+  // Logger.log('parse\vue_component_render.js countAtTimeList', countAtTimeList)
   for (let tableName of tableNameList) {
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
       .from(tableName)
       .where('count_type', '=', countType)
-      .whereIn('count_at_time', 'like', countAtTimeList)
+      .whereIn('count_at_time', countAtTimeList)
       .andWhere(builder => {
         if (_.has(condition, ['component_type'])) {
-          builder.whereIn('component_type', condition['component_type'])
+          builder.where('component_type', condition['component_type'])
         }
         if (_.has(condition, ['browser'])) {
           builder.where('browser', 'like', `%${condition['browser']}%`)
@@ -97,7 +114,41 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
   return recordList
 }
 
+async function insertOperation(recordJson, projectId, createAt) {
+  let tableName = getTableName(projectId, createAt)
+  let updateAt = moment().unix()
+  let data = {
+    count_at_time: recordJson.countAtTimeStamp,
+    ucid: recordJson.ucid,
+    project_id: projectId,
+    count_type: 'minute',
+    item_id: recordJson.itemId,
+    operation_type: recordJson.operationType,
+    component_type: recordJson.componentType,
+    cost_time: recordJson.costTime,
+    pagecode: recordJson.pageCode,
+    component_code: recordJson.componentCode,
+    detail: recordJson.detail,
+    browser: recordJson.browser,
+    update_time: updateAt,
+    create_time: updateAt
+  }
+  let insertResult = await Knex
+    .returning('id')
+    .insert(data)
+    .from(tableName)
+    .catch(e => {
+      Logger.warn('vue component insertOperation 数据插入失败，错误原因=>', e)
+      return []
+    })
+  let insertId = _.get(insertResult, [0], 0)
+  return insertId
+}
+
+
+
 export default {
   insert,
-  getList
+  getList,
+  insertOperation
 }

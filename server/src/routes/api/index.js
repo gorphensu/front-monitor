@@ -11,6 +11,7 @@ import Project from '~/src/routes/api/project'
 import UV from '~/src/routes/api/uv'
 // Performance 本身是内置对象名
 import RPerformance from '~/src/routes/api/performance'
+import VueComponentRender from '~/src/routes/api/vue-component-render'
 
 export default {
   ...Behavior,
@@ -24,5 +25,6 @@ export default {
   ...Login,
   ...Project,
   ...RPerformance,
-  ...UV
+  ...UV,
+  ...VueComponentRender
 }
