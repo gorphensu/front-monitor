@@ -135,7 +135,7 @@ async function insertOperation(recordJson, projectId, createAt) {
     cost_time: recordJson.costTime,
     pagecode: recordJson.pageCode,
     component_code: recordJson.componentCode,
-    detail: recordJson.detail,
+    detail: recordJson.detail || recordJson.viewRule,
     browser: recordJson.browser,
     update_time: updateAt,
     create_time: updateAt
