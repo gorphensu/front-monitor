@@ -6,6 +6,7 @@ import DatabaseUtil from '~/src/library/utils/modules/database'
 import DATE_FORMAT from '~/src/constants/date_format'
 
 const BASE_TABLE_NAME = 't_o_vue_component_render'
+const OPETATION_TABLE_NAME = 't_o_vue_component_operation'
 
 const TABLE_COLUMN = [
   `id`,
@@ -48,6 +49,12 @@ function getTableName(projectId, createAt) {
   let createAtMoment = moment.unix(createAt)
   let monthStr = createAtMoment.clone().format('YYYYMM')
   return `${BASE_TABLE_NAME}_${projectId}_${monthStr}`
+}
+
+function getOperationTableName(projectId, createAt) {
+  let createAtMoment = moment.unix(createAt)
+  let monthStr = createAtMoment.clone().format('YYYYMM')
+  return `${OPETATION_TABLE_NAME}_${projectId}_${monthStr}`
 }
 
 async function insert(recordJson, projectId, createAt) {
@@ -115,7 +122,7 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
 }
 
 async function insertOperation(recordJson, projectId, createAt) {
-  let tableName = getTableName(projectId, createAt)
+  let tableName = getOperationTableName(projectId, createAt)
   let updateAt = moment().unix()
   let data = {
     count_at_time: recordJson.countAtTimeStamp,
