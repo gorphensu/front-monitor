@@ -463,8 +463,10 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       break
     case MULIT_T_O_VUE_COMPONENT_RENDER:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
     case MULIT_T_O_VUE_COMPONENT_OPERATION:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
     default:
   }
 
