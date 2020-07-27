@@ -51,6 +51,8 @@ const registedCommandList = [
   './commands/utils/clean_old_log', //  自动删除旧日志
   './commands/utils/test', //  专业粘贴调试代码
 
+  './commands/utils/clean_nginx_log', // 自动删除两天前的nginx生产的日志数据
+
   // 测试uc
   './commands/utils/testUC'
 ]

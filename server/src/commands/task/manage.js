@@ -52,6 +52,8 @@ class TaskManager extends Base {
     this.registerTaskRepeatPer1Hour()
     this.log('注册每6小时执行一次的任务')
     this.registerTaskRepeatPer6Hour()
+    this.log('注册每天执行一次的任务')
+    this.registerTaskRepeatPer1Day()
     this.log('全部定时任务注册完毕, 等待执行')
   }
 
@@ -297,6 +299,26 @@ class TaskManager extends Base {
       that.execCommand('Utils:CleanOldLog')
 
       that.log('registerTaskRepeatPer6Hour 命令分配完毕')
+    })
+  }
+
+  /**
+   * 每天启动一次
+   */
+  async registerTaskRepeatPer1Day () {
+    let that = this
+    // 每天1时1分1秒启动
+    // 30 33 16 * * *
+    schedule.scheduleJob('1 1 1 */1 * *', function () {
+      that.log('registerTaskRepeatPer1Day 开始执行')
+      // 解析命令
+      let commandList = [
+        'Utils:CleanNginxLog'
+      ]
+      for (let commandItem of commandList) {
+        that.execCommand(commandItem)
+      }
+      that.log('registerTaskRepeatPer1Day 命令分配完毕')
     })
   }
 
