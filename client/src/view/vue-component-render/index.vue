@@ -19,17 +19,47 @@
           </div>
           <div style="height:400px">
             <Loading :isSpinShow="isSpinShowDetail"></Loading>
-            <v-chart :force-fit="true" :height="height" :scale="lineScale" :data="chartData">
+            <v-chart :force-fit="true" :height="height" :data="chartData">
               <v-tooltip :onChange="itemFormatter" />
-              <v-axis data-key="date" />
-              <v-line position="count_at_time*rendertime" color="date" />
+              <v-axis />
               <v-point
-                position="count_at_time*rendertime"
-                color="date"
+                position="count_at_time*cost_time"
                 :size="4"
                 :shape="'circle'"
+                :onClick="pointClickHandler"
+                color="level"
               />
             </v-chart>
+          </div>
+          <div style="height:400px; display:flex;">
+            <v-chart
+              :force-fit="true"
+              style="width: 50%;min-width: 50%;max-width: 50%;"
+              :height="height"
+              :data="detailChartData"
+            >
+              <v-tooltip :onChange="itemFormatter" />
+              <v-axis />
+              <v-point
+                position="operation_type*cost_time"
+                :size="4"
+                :shape="'circle'"
+                :onClick="pointDetailClickHandler"
+                color="level"
+              />
+            </v-chart>
+          </div>
+          <div style="height: 400px; display:flex; justify-content: space-around;">
+            <div class="viewrule-container" style="background: #efefef;width: 49%;overflow: auto;">
+              <pre>
+                <code>{{viewRule}}</code>
+              </pre>
+            </div>
+            <div class="detail-container" style="background: #efefef;width: 49%;overflow: auto;">
+              <pre>
+                <code>{{detail}}</code>
+              </pre>
+            </div>
           </div>
         </Card>
       </i-col>
@@ -58,23 +88,68 @@ export default {
     return {
       isSpinShowDetail: true,
       chartData: [],
+      average: 0,
       lineScale: [{
-        dataKey: 'count_at_time',
-        min: 0,
-        max: 1
+        dataKey: 'cost_time',
+        min: 0
+      }, {
+        dataKey: 'average_time',
+        min: 0
       }],
       height: 400,
-      componentType: '',
-      dateRange: [moment(moment().subtract(1, 'days').format(DATE_FORMAT_BY_DAY)).toDate(), moment(moment().format(DATE_FORMAT_BY_DAY)).toDate()]
+      pointStyle: {
+        color: 'red'
+      },
+      componentType: 'dropdownbox',
+      dateRange: [moment(moment().format(DATE_FORMAT_BY_DAY)).toDate(), moment(moment().subtract(-1, 'days').format(DATE_FORMAT_BY_DAY)).toDate()],
+      detailChartData: [],
+      detail: '',
+      viewRule: ''
     }
   },
   methods: {
+    pointClickHandler(eventPoint) {
+      let data = eventPoint.data._origin
+      let lifeDatas = this.chartData.filter(item => {
+        return item.item_id === data.item_id
+      }).sort((a, b) => {
+        return a.count_at_time_at - b.count_at_time_at
+      })
+      this.detailChartData = lifeDatas
+    },
+    pointDetailClickHandler(eventPoint) {
+      let data = eventPoint.data._origin
+      if (data.detail) {
+        try {
+          this.detail = JSON.stringify(JSON.parse(data.detail), null, 2)
+        } catch (e) {
+          this.detail = data.detail
+        }
+      }
+      if (this.detailChartData[0].detail) {
+        try {
+          this.viewRule = JSON.parse(this.detailChartData[0].detail)
+          if (typeof this.viewRule === 'string') {
+            this.viewRule = JSON.parse(this.viewRule)
+          }
+          this.viewRule = JSON.stringify({
+            pagecode: this.detailChartData[0].pagecode,
+            viewRule: this.viewRule,
+            ucid: data.ucid,
+            browser: data.browser
+          }, null, 2)
+        } catch (e) {
+          this.viewRule = data.detailChartData[0].detail
+        }
+      }
+    },
     itemFormatter(e) {
       let attrs = e.tooltip._attrs
       if (e.items) {
         const items = e.items[0]
         let val = items.value
         let componentType = items.point._origin.component_type
+        let operationType = items.point._origin.operation_type
         let browser = items.point._origin.browser
         if (browser) {
           // major: "81"
@@ -86,6 +161,7 @@ export default {
         attrs.itemTpl = `
         <ul class="g2-tooltip-list-item">
           <li data-v-gtlv >类型：${componentType}</li>
+          <li data-v-gtlv >操作：${operationType}</li>
           <li data-v-gtlv>浏览器：${browser}</li>
           <li data-v-gtlv >时长：${this.MillisecondToDate(val)}</li>
         </ul>
@@ -96,21 +172,21 @@ export default {
       // 1 计算平均值
       let length = data.length
       let average = data.reduce((prev, current) => {
-        return prev + current.render_time
+        return prev + current.cost_time
       }, 0) / length
       data.forEach(item => {
-        item['渲染时长'] = item.render_time
-        item['平均时长'] = average
+        item.average_time = average
+        if (item.cost_time > (average * 5)) {
+          item.level = 'danger'
+        } else if (item.cost_time > (average * 2)) {
+          item.level = 'warning'
+        } else {
+          item.level = 'normal'
+        }
+        item.count_at_time_at = item.count_at_time
+        item.count_at_time = moment(item.count_at_time * 1000).format('YYYY_MM_DD HH:mm:ss')
       })
-      // 2 合并到各个项
-      const dv = new DataSet.View().source(data)
-      dv.transform({
-        type: 'fold',
-        fields: ['渲染时长', '平均时长'],
-        key: 'date',
-        value: 'rendertime'
-      })
-      return dv.rows
+      return data
     },
 
     async fetchListAndRender() {

@@ -78,7 +78,7 @@ class VueComponentRender extends ParseBase {
     if (!operationType) {
       return false
     }
-    if (!renderTime && !costTime) {
+    if ((renderTime === null || renderTime === undefined) && (costTime === null || costTime === undefined)) {
       return false
     }
     if (!componentType) {

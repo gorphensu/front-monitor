@@ -152,10 +152,41 @@ async function insertOperation(recordJson, projectId, createAt) {
   return insertId
 }
 
+async function getRenderList(projectId, startAt, finishAt, condition = {}, countType = DATE_FORMAT.UNIT.MINUTE) {
+  let startAtMoment = moment.unix(startAt)
+  let endAtMoment = moment.unix(finishAt)
+  let tableName = getOperationTableName(projectId, startAt)
+  let recordList = []
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getOperationTableName)
+  Logger.log('parse\vue_component_render.js getRenderList tableNameList', tableNameList)
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_OPERATION_COLUMN)
+      .from(tableName)
+      .where('count_type', '=', countType)
+      // .where('operation_type', '=', 'vm.render')
+      .whereBetween('count_at_time', [startAt, finishAt])
+      .andWhere(builder => {
+        if (_.has(condition, ['component_type'])) {
+          builder.where('component_type', condition['component_type'])
+        }
+        if (_.has(condition, ['browser'])) {
+          builder.where('browser', 'like', `%${condition['browser']}%`)
+        }
+      })
+      .catch((e) => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    recordList = recordList.concat(rawRecordList)
+  }
+  return recordList
+}
 
 
 export default {
   insert,
   getList,
-  insertOperation
+  insertOperation,
+  getRenderList
 }
