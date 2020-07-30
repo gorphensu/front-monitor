@@ -21,8 +21,26 @@ export default {
         label: '下拉框(dropdownbox)',
         value: 'dropdownbox'
       }, {
+        label: '级联控件(cascade)',
+        value: 'cascade'
+      }, {
+        label: '树选择(datatree)',
+        value: 'datatree'
+      }, {
+        label: '树控件(picktree)',
+        value: 'picktree'
+      }, {
+        label: '树列表(picklist)',
+        value: 'picklist'
+      }, {
         label: '穿梭框(relevance)',
         value: 'relevance'
+      }, {
+        label: '照片控件(photo)',
+        value: 'photo'
+      }, {
+        label: '表格(table)',
+        value: 'table'
       }],
       componentType: this.value
     }
