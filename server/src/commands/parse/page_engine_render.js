@@ -44,6 +44,7 @@ class PageEngineRender extends ParseBase {
     let detail = _.get(record, ['detail', 'detail'], '')
     code = parseInt(code)
     projectId = parseInt(projectId)
+
     if (recordType !== LegalRecordType) {
       return false
     }
@@ -83,7 +84,7 @@ class PageEngineRender extends ParseBase {
   * {"type":"product","code":11111,"detail": {}}
   */
   async processRecordAndCacheInProjectMap(record) {
-    console.log('page_engine_render.js processRecordAndCacheInProjectMap record', record);
+    console.log('page_engine_render.js processRecordAndCacheInProjectMap record');
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
     let costTime = _.get(record, ['detail', 'costtime'], '')
@@ -100,7 +101,7 @@ class PageEngineRender extends ParseBase {
 
     let vueRecord = {
       item_id: itemId,
-      create_at_time: countAtTimeStamp,
+      count_at_time: countAtTimeStamp,
       ucid,
       cost_time: costTime,
       pagecode: pageCode,
@@ -131,8 +132,9 @@ class PageEngineRender extends ParseBase {
     let successSaveCount = 0
     for (let [projectId, countAtMap] of this.projectMap) {
       for (let [countAtTime, recordList] of countAtMap) {
+        let countAt = moment(countAtTime, COUNT_BY_MINUTE_DATE_FORMAT).unix()
         for (let vueRecord of recordList) {
-          let isSuccess = await MPageEngineRender.insert(vueRecord, projectId)
+          let isSuccess = await MPageEngineRender.insert(vueRecord, projectId, countAt)
           processRecordCount = processRecordCount + 1
           if (isSuccess) {
             successSaveCount = successSaveCount + 1

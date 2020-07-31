@@ -55,7 +55,7 @@ async function insert(recordJson, projectId, createAt) {
     .returning('id')
     .insert(data)
     .from(tableName)
-    .catc(e => {
+    .catch(e => {
       Logger.warn('page engine insert数据插入失败，错误原因=>', e)
       return []
     })
