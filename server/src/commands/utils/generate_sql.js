@@ -446,7 +446,7 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_RENDER] = `(
   PRIMARY KEY (\`id\`),
   KEY \`idx_count_at_time_pagecode\` (\`count_at_time\`,\`pagecode\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page engine引擎渲染时间';
-)`
+`
 
 function generate(baseTableName, projectId = '', tableTime = '') {
   // 获取模板
