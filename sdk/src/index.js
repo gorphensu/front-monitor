@@ -2,7 +2,7 @@ import jstracker from './js-tracker';
 import rule from './rule';
 import config from '../config';
 import { get, has, clone, isFunction, merge } from 'lodash-es';
-
+import Pool from './pool';
 // 将loadsh的方法集中到_中
 let _ = {}
 _.get = get
@@ -12,10 +12,10 @@ _.isFunction = isFunction
 _.merge = merge
 
 //const feeTarget = 'https://test.com/dig' // 打点服务器，或Nginx地址
-const feeTarget = 'http://localhost/dig.gif'
+const feeTarget = 'http://47.112.112.79/dig.gif'
 
 // 测试标记符
-const TEST_FLAG = 'b47ca710747e96f1c523ebab8022c19e9abaa56b'   
+const TEST_FLAG = 'b47ca710747e96f1c523ebab8022c19e9abaa56b'
 
 const LOG_TYPE_ERROR = 'error' // 错误日志
 const LOG_TYPE_PRODUCT = 'product' // 产品指标
@@ -48,8 +48,8 @@ const JS_TRACKER_ERROR_DISPLAY_MAP = {
 // 默认配置
 const DEFAULT_CONFIG = {
   pid: 'template', // [必填]项目id,项目组统一分配
-  uuid: 'uuid-'+Math.random(), // [可选]设备唯一id, 用于计算uv数&设备分布. 一般在cookie中可以取到, 没有uuid可用设备mac/idfa/imei替代. 或者在storage的key中存入随机数字, 模拟设备唯一id.
-  ucid: 'ucid-'+Math.random(), // [可选]用户ucid, 用于发生异常时追踪用户信息, 一般在cookie中可以取到, 没有可传空字符串
+  uuid: 'uuid-' + Math.random(), // [可选]设备唯一id, 用于计算uv数&设备分布. 一般在cookie中可以取到, 没有uuid可用设备mac/idfa/imei替代. 或者在storage的key中存入随机数字, 模拟设备唯一id.
+  ucid: 'ucid-' + Math.random(), // [可选]用户ucid, 用于发生异常时追踪用户信息, 一般在cookie中可以取到, 没有可传空字符串
 
   is_test: true, // 是否为测试数据, 默认为false(测试模式下打点数据仅供浏览, 不会展示在系统中)
   record: {
@@ -187,8 +187,9 @@ const detailAdapter = (code, detail = {}) => {
  * @param {code码} code
  * @param {消费数据} detail
  * @param {展示数据} extra
+ * @param {用户自定义的通用数据} userCommon
  */
-const log = (type = '', code, detail = {}, extra = {}) => {
+const log = (type = '', code, detail = {}, extra = {}, userCommon = {}) => {
   const errorMsg = validLog(type, code, detail, extra);//首先验证字段是否合法
   if (errorMsg) {
     clog(errorMsg)
@@ -220,7 +221,8 @@ const log = (type = '', code, detail = {}, extra = {}) => {
       timestamp: Date.now(),
       runtime_version: commonConfig.version,
       sdk_version: config.version,
-      page_type: pageType
+      page_type: pageType,
+      ...userCommon
     }
   }
   // 图片打点
@@ -273,6 +275,7 @@ log.set = (customerConfig = {}, isOverwrite = false) => {
     debugLogger('更新后配置为:', commonConfig)
   }
 }
+
 
 jstracker.init({
   concat: false,
@@ -494,18 +497,31 @@ function behavior(code = '', name = '', url = '') {
   })
 }
 log.behavior = behavior
-log.tryJS=jstracker.tryJS;
+log.tryJS = jstracker.tryJS;
 // 注册项目名: dt => downtown
 window.dt = log
 
-export const Elog = log.error = (code, detail, extra) => {
-  return log('error', code, detail, extra)
+export const Elog = log.error = (code, detail, extra, userCommon) => {
+  return log('error', code, detail, extra, userCommon)
 }
-export const Plog = log.product = (code, detail, extra) => {
-  return log('product', code, detail, extra)
+export const Plog = log.product = (code, detail, extra, userCommon) => {
+  return log('product', code, detail, extra, userCommon)
 }
-export const Ilog = log.info = (code, detail, extra) => {
-  return log('info', code, detail, extra)
+export const Ilog = log.info = (code, detail, extra, userCommon) => {
+  return log('info', code, detail, extra, userCommon)
+}
+
+const pool = new Pool(3)
+// 这里需要做一个缓冲池，不需要马上push上去
+export const PLogPool = log.productPool = (code, detail, extra, userCommon = {}) => {
+  pool.add(() => {
+    return new Promise((resolve, reject) => {
+      resolve(Plog(code, detail, extra, {
+        ...userCommon,
+        timestamp: Date.now()
+      }));
+    });
+  });
 }
 
 export default log

@@ -12,6 +12,7 @@ import UV from '~/src/routes/api/uv'
 // Performance 本身是内置对象名
 import RPerformance from '~/src/routes/api/performance'
 import VueComponentRender from '~/src/routes/api/vue-component-render'
+import PageEngineRender from '~/src/routes/api/page-engine-render'
 
 export default {
   ...Behavior,
@@ -26,5 +27,6 @@ export default {
   ...Project,
   ...RPerformance,
   ...UV,
-  ...VueComponentRender
+  ...VueComponentRender,
+  ...PageEngineRender
 }

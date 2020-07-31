@@ -2,8 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin= require('html-webpack-plugin');
 
 let webpackConfig = {
-  mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
+  // mode: "development",
+  mode: 'production',
+  // devtool: 'cheap-module-eval-source-map',
+  devtool: false,
   entry: { index: './src/index.js' },
   resolve: {
     extensions: ['.js'],
