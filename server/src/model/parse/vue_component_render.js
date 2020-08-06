@@ -66,7 +66,7 @@ async function insert(recordJson, projectId, createAt) {
     project_id: projectId,
     count_type: 'minute',
     component_type: recordJson.componentType,
-    render_time: recordJson.renderTime,
+    render_time: recordJson.costTime == null ? recordJson.renderTime : recordJson.costTime,
     pagecode: recordJson.pageCode,
     viewrule: recordJson.viewRule,
     browser: recordJson.browser,
@@ -78,7 +78,7 @@ async function insert(recordJson, projectId, createAt) {
     .insert(data)
     .from(tableName)
     .catch(e => {
-      Logger.warn('vue component render 数据插入失败，错误原因=>', e)
+      Logger.warn('vue component render 数据插入失败，错误原因=>', e, JSON.stringify(data), recordJson)
       return []
     })
   let insertId = _.get(insertResult, [0], 0)
