@@ -8,9 +8,10 @@
               class="time-bar"
               @change="timeChange"
               dateFormat="yyyy/MM/dd HH:mm"
-              :datePickerType="datetimerange"
+              datePickerType="datetimerange"
               :displayTypeItem="false"
             ></time-bar>
+            <i-input class="pagecode-input" search  v-model="pagecode" placeholder="表单code" @on-enter="pagecodeChange"></i-input>
           </div>
           <div style="height: 400px;">
             <Loading :isSpinShow="isShowLoading"></Loading>
@@ -132,6 +133,10 @@ export default {
       this.fetchListAndRender()
     },
 
+    async pagecodeChange() {
+      this.fetchListAndRender()
+    },
+
     MillisecondToDate(msd) {
       let time = parseFloat(msd)
       if (time) {
@@ -160,4 +165,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.page-engine-container .filter-container {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+}
+.page-engine-container .time-bar {
+  width: 700px;
+}
+.page-engine-container .pagecode-input {
+  width: 200px;
+}
 </style>

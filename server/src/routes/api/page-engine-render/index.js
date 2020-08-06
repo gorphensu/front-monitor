@@ -18,7 +18,7 @@ const getPageEngineRenderList = RouterConfigBuilder.routerConfigBuilder(
     let endAt = _.get(request, ['et'], 0)
 
     let condition = {
-      component_type: _.get(request, ['pagecode'], '')
+      pagecode: _.get(request, ['pagecode'], '')
     }
 
     const currentStamp = moment().unix()

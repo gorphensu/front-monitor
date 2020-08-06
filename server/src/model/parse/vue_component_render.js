@@ -105,10 +105,10 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
       .where('count_type', '=', countType)
       .whereIn('count_at_time', countAtTimeList)
       .andWhere(builder => {
-        if (_.has(condition, ['component_type'])) {
+        if (condition['component_type']) {
           builder.where('component_type', condition['component_type'])
         }
-        if (_.has(condition, ['browser'])) {
+        if (condition['browser']) {
           builder.where('browser', 'like', `%${condition['browser']}%`)
         }
       })

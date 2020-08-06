@@ -70,16 +70,17 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
   let recordList = []
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
   Logger.log('parse\page-engine-render.js getList tableNameList', tableNameList)
+  console.log('condition', condition)
   for (let tableName of tableNameList) {
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
       .from(tableName)
       .whereBetween('count_at_time', [startAt, finishAt])
       .andWhere(builder => {
-        if (_.has(condition, ['pagecode'])) {
+        if (condition['pagecode']) {
           builder.where('pagecode', condition['pagecode'])
         }
-        if (_.has(condition, ['browser'])) {
+        if (condition['browser']) {
           builder.where('browser', 'like', `%${condition['browser']}%`)
         }
       })
