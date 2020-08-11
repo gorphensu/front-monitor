@@ -59,7 +59,6 @@ export default {
   methods: {
     pointClickHandler(eventPoint) {
       let data = eventPoint.data._origin
-      debugger
       // let lifeDatas = this.chartData.filter(item => {
       //   return item.item_id === data.item_id
       // }).sort((a, b) => {
@@ -75,6 +74,7 @@ export default {
         let pagecode = items.point._origin.pagecode
         let operationType = items.point._origin.operation_type
         let browser = items.point._origin.browser
+        let url = items.point._origin.url || ''
         if (browser) {
           // major: "81"
           // name: "Chrome"
@@ -88,6 +88,7 @@ export default {
           <li data-v-gtlv >操作：${operationType}</li>
           <li data-v-gtlv>浏览器：${browser}</li>
           <li data-v-gtlv >时长：${this.MillisecondToDate(val)}</li>
+          <li data-v-gtlv>浏览地址：${url}</li>
         </ul>
         `
       }

@@ -34,6 +34,7 @@ const TABLE_OPERATION_COLUMN = [
   `operation_type`,
   `cost_time`,
   `pagecode`,
+  `url`,
   `detail`,
   `browser`,
   `create_time`,
@@ -134,6 +135,7 @@ async function insertOperation(recordJson, projectId, createAt) {
     component_type: recordJson.componentType,
     cost_time: recordJson.costTime,
     pagecode: recordJson.pageCode,
+    url: recordJson.url,
     component_code: recordJson.componentCode,
     detail: recordJson.detail || recordJson.viewRule,
     browser: recordJson.browser,
@@ -152,6 +154,7 @@ async function insertOperation(recordJson, projectId, createAt) {
   return insertId
 }
 
+// 使用这个了
 async function getRenderList(projectId, startAt, finishAt, condition = {}, countType = DATE_FORMAT.UNIT.MINUTE) {
   let startAtMoment = moment.unix(startAt)
   let endAtMoment = moment.unix(finishAt)

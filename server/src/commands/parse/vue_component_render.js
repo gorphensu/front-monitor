@@ -96,6 +96,7 @@ class VueComponentRender extends ParseBase {
     console.log('vue_component_rener.js processRecordAndCacheInProjectMap record', record);
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
+    let url = _.get(record, ['common', 'page_type'])
     let renderTime = _.get(record, ['detail', 'rendertime'], '')
     let costTime = _.get(record, ['detail', 'costtime'], '')
     let browser = _.get(record, ['ua', 'browser'])
@@ -120,6 +121,7 @@ class VueComponentRender extends ParseBase {
       renderTime,
       costTime,
       pageCode,
+      url,
       componentType,
       operationType,
       componentCode,
@@ -152,8 +154,8 @@ class VueComponentRender extends ParseBase {
       for (let [countAtTime, recordList] of countAtMap) {
         let countAt = moment(countAtTime, COUNT_BY_MINUTE_DATE_FORMAT).unix()
         for (let vueRecord of recordList) {
-          let isSuccess = await MVueComponentRender.insert(vueRecord, projectId, countAt)
-          isSuccess = await MVueComponentRender.insertOperation(vueRecord, projectId, countAt)
+          // let isSuccess = await MVueComponentRender.insert(vueRecord, projectId, countAt)
+          let isSuccess = await MVueComponentRender.insertOperation(vueRecord, projectId, countAt)
           processRecordCount = processRecordCount + 1
           if (isSuccess) {
             successSaveCount = successSaveCount + 1

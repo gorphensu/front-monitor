@@ -87,6 +87,7 @@ class PageEngineRender extends ParseBase {
     console.log('page_engine_render.js processRecordAndCacheInProjectMap record');
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
+    let url = _.get(record, ['common', 'page_type'])
     let costTime = _.get(record, ['detail', 'costtime'], '')
     let browser = _.get(record, ['ua', 'browser'])
     let itemId = _.get(record, ['detail', 'itemid'], '')
@@ -105,6 +106,7 @@ class PageEngineRender extends ParseBase {
       ucid,
       cost_time: costTime,
       pagecode: pageCode,
+      url,
       operation_type: operationType,
       detail,
       projectId,

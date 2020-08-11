@@ -151,6 +151,7 @@ export default {
         let componentType = items.point._origin.component_type
         let operationType = items.point._origin.operation_type
         let browser = items.point._origin.browser
+        let url = items.point._origin.url || ''
         if (browser) {
           // major: "81"
           // name: "Chrome"
@@ -164,6 +165,7 @@ export default {
           <li data-v-gtlv >操作：${operationType}</li>
           <li data-v-gtlv>浏览器：${browser}</li>
           <li data-v-gtlv >时长：${this.MillisecondToDate(val)}</li>
+          <li data-v-gtlv>浏览地址：${url}</li>
         </ul>
         `
       }
