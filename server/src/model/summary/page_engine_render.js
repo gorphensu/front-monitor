@@ -18,7 +18,7 @@ const TABLE_COLUMN = [
   `render_time`,
   `loaded_time`,
   `loaded_eventsize`,
-  `laoded_event_detail`,
+  `loaded_event_detail`,
   `count_size`,
   `url`,
   `create_time`,
@@ -122,20 +122,40 @@ async function replaceAndAutoIncrementRecord(recordInfo, visitAt) {
   })
   // 插入更新
   if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
-    return await updateRecord(projectId, visitAt, recordInfo)
+    // 需要改变下操作数据
+    let updateData = dealUpdateRecordData(rawRecordList[0], recordInfo)
+    return await updateRecord(projectId, visitAt, updateData)
   } else { // 新建
     return await insertRecord(projectId, visitAt, recordInfo)
   }
 }
 
+function dealUpdateRecordData(oldData, newData) {
+  let res = {
+    ...oldData
+  }
+  delete res.id
+  res['count_size']
+  res['render_time'] = (res['render_time'] * res['count_size'] + newData['render_time']) / (res['count_size'] + 1)
+  res['loaded_time'] = (res['loaded_time'] * res['count_size'] + newData['loaded_time']) / (res['count_size'] + 1)
+  res['count_size']++
+
+  res['ctrlsize'] = newData['ctrlsize']
+  res['container_ctrl'] = newData['container_ctrl']
+  res['container_ctrl_detail'] = newData['container_ctrl_detail']
+  res['loaded_eventsize'] = newData['loaded_eventsize']
+  res['loaded_event_detail'] = newData['loaded_event_detail']
+  return res
+}
+
 async function insertRecord(projectId, visitAt, recordInfo) {
   let tableName = getTableName(projectId, visitAt)
   let updateAt = moment().unix()
-  let data = Object.assign({
+  let data = Object.assign({}, recordInfo, {
     update_time: updateAt,
-    create_time: updateAt
-  }, recordInfo)
-
+    create_time: updateAt,
+    count_size: 1
+  })
   let insertResult = await Knex
     .returning('id')
     .insert(data)
@@ -154,10 +174,10 @@ async function updateRecord(projectId, visitAt, recordInfo) {
   let pagecode = recordInfo.pagecode
   let url = recordInfo.url
   let updateAt = moment().unix()
-  let data = Object.assign({
-    update_time: updateAt,
-    count_size: recordInfo.count_size + 1
-  }, recordInfo)
+  let data = Object.assign({}, recordInfo, {
+    update_time: updateAt
+  })
+
   let affectRows = await Knex(tableName)
     .where('project_id', '=', projectId)
     .where('ucid', '=', ucid)
