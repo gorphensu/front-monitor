@@ -7,7 +7,7 @@ import Base from '~/src/commands/base'
 import appConfig from '~/src/configs/app'
 import Nginx from '~/src/library/nginx'
 import DATE_FORMAT from '~/src/constants/date_format'
-
+import FileUtil from '~/src/util/file'
 class CleanOldLog extends Base {
   static get signature() {
     return `
@@ -21,11 +21,25 @@ class CleanOldLog extends Base {
 
   async execute(args, options) {
     // 只保留当前月内数据, 每月20号之后自动删除上个月数据
-    this.log("清理kafka日志")
-    await this.clearOldKafkaLog()
+    // this.log("清理kafka日志")
+    // await this.clearOldKafkaLog()
     this.log("清理command日志")
     await this.clearOldCommandLog()
+    this.log('清理pm2 command日志')
+    await this.cleanOldPM2Log()
     this.log(`执行完毕`)
+  }
+
+
+  async cleanOldPM2Log() {
+    let absoluteCommandLogUri = await this.getAbsoluteCommandLogPath()
+    let pm2LogUri = path.join(absoluteCommandLogUri, '../pm2')
+    // 是否是文件夹，如果是，就删除文件夹
+    let statObj = await fs.promises.stat(pm2LogUri)
+    if (statObj.isDirectory()) {
+      await FileUtil.clearFolder(pm2LogUri)
+      this.log(`cleanOldPM2Log 删除完毕`)
+    }
   }
 
   async clearOldKafkaLog() {
@@ -107,6 +121,8 @@ class CleanOldLog extends Base {
       this.execCommand(`rm -rf ${lastMonthLogDirUri}`)
     }
   }
+
+
 
   async getAbsoluteCommandLogPath() {
     let logPath = appConfig.absoluteLogPath

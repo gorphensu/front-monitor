@@ -8,7 +8,7 @@ import MProject from '~/src/model/project/project'
 import DATE_FORMAT from '~/src/constants/date_format'
 import _ from 'lodash'
 
-class PageEngineRender extends Base {
+class SummaryPageEngineRender extends Base {
   static get signature() {
     return `
      Summary:PageEngineRender
@@ -151,4 +151,4 @@ class PageEngineRender extends Base {
   }
 }
 
-export default PageEngineRender
+export default SummaryPageEngineRender
