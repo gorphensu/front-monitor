@@ -12,13 +12,13 @@ import schedule from 'node-schedule'
 
 let projectBaseUri = path.resolve(__dirname, '../../../') // 项目所在文件夹
 class TaskManager extends Base {
-  static get signature () {
+  static get signature() {
     return `
      Task:Manager
      `
   }
 
-  static get description () {
+  static get description() {
     return '任务调度主进程, 只能启动一次'
   }
 
@@ -28,7 +28,7 @@ class TaskManager extends Base {
    * @param options
    * @returns {Promise<void>}
    */
-  async handle (args, options) {
+  async handle(args, options) {
     this.log('任务主进程启动')
 
     this.log('关闭其他TaskManager进程')
@@ -57,7 +57,7 @@ class TaskManager extends Base {
     this.log('全部定时任务注册完毕, 等待执行')
   }
 
-  async getOtherTaskMangerPidList () {
+  async getOtherTaskMangerPidList() {
     // 命令本身也会被检测出来, sh -c npm run warning && NODE_ENV=development node dist/fee.js "Task:Manager"
     let command = 'ps aS|grep Task:Manager|grep node|grep fee|grep -v grep | grep -v  \'"Task:Manager"\''
     this.log(`检测命令 => ${command}`)
@@ -81,7 +81,7 @@ class TaskManager extends Base {
     return taskManagerPidList
   }
 
-  async closeOtherTaskManager () {
+  async closeOtherTaskManager() {
     let taskManagerPidList = await this.getOtherTaskMangerPidList()
     this.log('当前process.pid =>', process.pid)
     this.log(`其余TaskManger进程Pid列表 => `, taskManagerPidList)
@@ -116,7 +116,7 @@ class TaskManager extends Base {
   /**
    * 每分钟启动一次
    */
-  async registerTaskRepeatPer1Minute () {
+  async registerTaskRepeatPer1Minute() {
     let that = this
     // 每分钟的第0秒启动
     schedule.scheduleJob('0 */1 * * * *', function () {
@@ -155,7 +155,7 @@ class TaskManager extends Base {
   /**
    * 每10分钟启动一次
    */
-  async registerTaskRepeatPer10Minute () {
+  async registerTaskRepeatPer10Minute() {
     let that = this
     // 每10分钟的第30秒启动
     schedule.scheduleJob('15 */10 * * * *', function () {
@@ -209,7 +209,7 @@ class TaskManager extends Base {
   /**
    * 每小时启动一次
    */
-  async registerTaskRepeatPer1Hour () {
+  async registerTaskRepeatPer1Hour() {
     let that = this
     // 每小时15分30秒启动
     schedule.scheduleJob('30 15 * * * *', function () {
@@ -219,7 +219,7 @@ class TaskManager extends Base {
       let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
       let lastDayStartAtByMinute = moment().subtract(1, DATE_FORMAT.UNIT.DAY).startOf(DATE_FORMAT.UNIT.DAY).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      
+
       // 解析命令
       let parseCommandList = [
         'Parse:Device',
@@ -246,12 +246,31 @@ class TaskManager extends Base {
 
       that.log('registerTaskRepeatPer1Hour 命令分配完毕')
     })
+    // 0分1秒 小时区域
+    schedule.scheduleJob('1 0 * * * *', function () {
+      that.log('registerTaskRepeatPer1Hour 开始执行')
+
+      let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
+      let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let nowBySecond = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_SECOND)
+      // 汇总命令
+      let summaryCommandList = [
+        'Summary:PageEngineRender',
+      ]
+      for (let summaryCommand of summaryCommandList) {
+        // 当日数据
+        that.dispatchParseCommand(summaryCommand, nowByMinute, DATE_FORMAT.UNIT.MINUTE)
+      }
+
+      that.log('registerTaskRepeatPer1Hour 命令分配完毕')
+    })
   }
 
   /**
    * 每6小时启动一次
    */
-  async registerTaskRepeatPer6Hour () {
+  async registerTaskRepeatPer6Hour() {
     let that = this
     // 每过6小时, 在35分45秒启动
     schedule.scheduleJob('45 35 */6 * * *', function () {
@@ -306,7 +325,7 @@ class TaskManager extends Base {
   /**
    * 每天启动一次
    */
-  async registerTaskRepeatPer1Day () {
+  async registerTaskRepeatPer1Day() {
     let that = this
     // 每天1时1分1秒启动
     // 30 33 16 * * *
@@ -329,7 +348,7 @@ class TaskManager extends Base {
    * @param {*} startAt
    * @param {*} endAt
    */
-  async dispatchParseCommand (commandName, startAtStr, endAtStr) {
+  async dispatchParseCommand(commandName, startAtStr, endAtStr) {
     this.log(`${commandName}任务开始, 处理时间 => ${startAtStr}, ${endAtStr}`)
     this.execCommand(commandName,
       [
@@ -345,7 +364,7 @@ class TaskManager extends Base {
    * @param {*} summaryAt
    * @param {*} summaryType
    */
-  async dispatchSummaryCommand (commandName, countAtStr, summaryType) {
+  async dispatchSummaryCommand(commandName, countAtStr, summaryType) {
     this.log(`${commandName}任务开始, 处理时间 => ${countAtStr}, 时间类型 => ${summaryType}`)
     this.execCommand(commandName,
       [
@@ -355,7 +374,7 @@ class TaskManager extends Base {
     )
   }
 
-  async execCommand (commandName, args = []) {
+  async execCommand(commandName, args = []) {
     let argvString = args.map((arg) => { return `'${arg}'` }).join('   ')
     let command = `NODE_ENV=${env} node ${projectBaseUri}/dist/fee.js ${commandName}  ${argvString}`
     this.log(`待执行命令=> ${command}`)

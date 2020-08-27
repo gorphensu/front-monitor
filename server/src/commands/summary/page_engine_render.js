@@ -28,6 +28,7 @@ class PageEngineRender extends Base {
    * @param {*} options
    */
   async execute(args, options) {
+    Logger.info('开始执行 Summary:PageEngineRender')
     // 按月统计, 每天都跑
     let { sumaryAtTime } = args
     if (this.isArgumentsLegal(args, options) === false) {
