@@ -101,6 +101,15 @@ export default [
         },
         component: NewUsers,
       },
+      {
+        path: 'system-browser',
+        name: 'system-browser',
+        meta: {
+          icon: 'md-pie',
+          title: '浏览器版本'
+        },
+        component: () => import('@/view/system-browser/index.vue')
+      }
     ],
   },
   {

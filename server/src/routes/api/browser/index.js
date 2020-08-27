@@ -5,6 +5,8 @@ import API_RES from '~/src/constants/api_res'
 import Util from '~/src/library/utils/modules/util'
 import DATE_FORMAT from '~/src/constants/date_format'
 import RouterConfigBuilder from '~/src/library/utils/modules/router_config_builder'
+import Knex from '~/src/library/mysql'
+import MSystemBrowser from '~/src/model/summary/system_browser'
 
 let getBrowserList = RouterConfigBuilder.routerConfigBuilder('/api/browser/list', RouterConfigBuilder.METHOD_TYPE_GET, async (req, res) => {
   try {
@@ -107,8 +109,38 @@ let getBrowser = RouterConfigBuilder.routerConfigBuilder('/api/browser', RouterC
   }
 })
 
+let getBrowserListInRange = RouterConfigBuilder.routerConfigBuilder('/api/browser/gets', RouterConfigBuilder.METHOD_TYPE_GET, async (req, res) => {
+  try {
+    let request = _.get(req, ['query'], {})
+    // 获取开始&结束时间
+    let startAt = _.get(request, ['st'], 0)
+    let endAt = _.get(request, ['et'], 0)
+
+    let currentMonthAtUnix = moment().set('date', 1).unix()
+    let nextMonthAtUnix = moment().add(1, 'month').set('date', 1).unix()
+    if (startAt) {
+      startAt = _.floor(startAt / 1000)
+    } else {
+      startAt = currentMonthAtUnix
+    }
+    if (endAt) {
+      endAt = _.ceil(endAt / 1000)
+    } else {
+      endAt = nextMonthAtUnix
+    }
+
+    const projectId = _.get(req, ['fee', 'project', 'projectId'], 0)
+
+    let result = await MSystemBrowser.getListInRange(projectId, startAt, endAt)
+    res.send(API_RES.showResult(result))
+  } catch (err) {
+    res.send(API_RES.showError(err.message))
+  }
+})
+
 export default {
   ...getBrowserList,
   ...getBrowser,
-  ...getBrowserDistributionByVersion
+  ...getBrowserDistributionByVersion,
+  ...getBrowserListInRange
 }

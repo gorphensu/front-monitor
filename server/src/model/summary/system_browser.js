@@ -183,7 +183,30 @@ async function getRecord(projectId, countAtMonth) {
   return _.get(recordList, [0], {})
 }
 
+async function getListInRange(projectId, startAt, finisthAt, condition = {}) {
+  let startAtMoment = moment.unix(startAt)
+  let endAtMoment = moment.unix(finisthAt)
+  console.log(startAt)
+  let countAtMonthList = []
+  // 根据startAt endAt转换成2020-03  2020-07这种格式
+  for (let currentAtMoment = startAtMoment; currentAtMoment.isSameOrBefore(endAtMoment); currentAtMoment = currentAtMoment.clone().add(1, 'month')) {
+    let formatCountAtTime = currentAtMoment.format(DATE_FORMAT.DATABASE_BY_MONTH)
+    countAtMonthList.push(formatCountAtTime)
+  }
+  console.log('countAtMonthList', countAtMonthList)
+  let rawRecoreList = await Knex
+    .from(BASE_TABLE_NAME)
+    .where('project_id', '=', projectId)
+    .whereIn('count_at_month', countAtMonthList)
+    .catch((e) => {
+      Logger.warn('查询失败, 错误原因 =>', e)
+      return []
+    })
+  return rawRecoreList
+}
+
 export default {
   getRecord,
-  summarySystemBrowser
+  summarySystemBrowser,
+  getListInRange
 }

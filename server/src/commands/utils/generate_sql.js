@@ -35,6 +35,7 @@ const MUILT_T_R_ERROR_SUMMARY = 't_r_error_summary' // 错误统计表,用于统
 const MULIT_T_O_VUE_COMPONENT_RENDER = 't_o_vue_component_render' // vue_component_render 统计vue控件的渲染时间
 const MULIT_T_O_VUE_COMPONENT_OPERATION = 't_o_vue_component_operation' // vue_component_operation 统计vue控件的各个方法的影响渲染的时间
 const MULIT_T_O_PAGE_ENGINE_RENDER = 't_o_page_engine_render'
+const MULIT_T_R_PAGE_ENGINE_RENDER = 't_r_page_engine_render' // 引擎统计表
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -451,6 +452,27 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_RENDER] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page engine引擎渲染时间';
 `
 
+TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_RENDER] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`project_id\` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '要报警项目id',
+  \`ucid\` varchar(20) NOT NULL DEFAULT '' COMMENT '用户id',
+  \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`ctrlsize\` int(20) NOT NULL DEFAULT '0' COMMENT '控件数量',
+  \`container_ctrl\` varchar(2000) DEFAULT '' COMMENT '容器控件code数组',
+  \`container_ctrl_detail\` varchar(3000) DEFAULT '' COMMENT '容器控件具体内容',
+  \`render_time\` int(20) NOT NULL DEFAULT '0' COMMENT '渲染耗时',
+  \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
+  \`loaded_eventsize\` int(20) NOT NULL DEFAULT '0' COMMENT '加载事件数量',
+  \`loaded_event_detail\` varchar(3000) DEFAULT '' COMMENT '加载事件具体内容',
+  \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '统计次数',
+  \`url\` varchar(255) COMMENT '浏览器地址',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_ucid_pagecode_url_updatetime\` (\`ucid\`,\`pagecode\`, \`url\`, \`update_time\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按小时记录page engine引擎渲染花销';
+`
+
 function generate(baseTableName, projectId = '', tableTime = '') {
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
@@ -489,6 +511,9 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
       break
     case MULIT_T_O_PAGE_ENGINE_RENDER:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
+    case MULIT_T_R_PAGE_ENGINE_RENDER:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
       break
     default:
@@ -594,7 +619,8 @@ SET foreign_key_checks = 0;
           MUILT_T_R_ERROR_SUMMARY,
           MULIT_T_O_VUE_COMPONENT_RENDER,
           MULIT_T_O_VUE_COMPONENT_OPERATION,
-          MULIT_T_O_PAGE_ENGINE_RENDER
+          MULIT_T_O_PAGE_ENGINE_RENDER,
+          MULIT_T_R_PAGE_ENGINE_RENDER
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

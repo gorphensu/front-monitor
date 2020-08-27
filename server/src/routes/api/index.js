@@ -13,7 +13,6 @@ import UV from '~/src/routes/api/uv'
 import RPerformance from '~/src/routes/api/performance'
 import VueComponentRender from '~/src/routes/api/vue-component-render'
 import PageEngineRender from '~/src/routes/api/page-engine-render'
-
 export default {
   ...Behavior,
   ...Os,

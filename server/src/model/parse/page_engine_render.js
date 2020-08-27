@@ -3,6 +3,7 @@ import _ from 'lodash'
 import Knex from '~/src/library/mysql'
 import Logger from '~/src/library/logger'
 import DatabaseUtil from '~/src/library/utils/modules/database'
+import MProject from '~/src/model/project/project'
 import DATE_FORMAT from '~/src/constants/date_format'
 
 const BASE_TABLE_NAME = 't_o_page_engine_render'

@@ -1,51 +1,55 @@
 <template>
   <div>
     <Row>
-      <Form :label-width="80"
-            style="display:flex;">
+      <Form :label-width="80" style="display:flex;">
         <FormItem>
           <slot name="left"></slot>
         </FormItem>
-        <FormItem label="时间"
-                  v-if="displayTimeItem">
-          <RadioGroup v-model="timeRange"
-                      @on-change="radioChange"
-                      type="button">
-            <Radio :label="today"
-                   :disabled="disabledToday">今天</Radio>
-            <Radio :label="yesterday"
-                   :disabled="disabledYesterday">昨天</Radio>
-            <Radio :label="sevenDays"
-                   :disabled="disabledSeven">最近七天</Radio>
-            <Radio :label="thirtyDays"
-                   :disabled="disabledThirty">最近30天</Radio>
+        <FormItem label="时间" v-if="displayTimeItem">
+          <RadioGroup
+            v-if="!shortcuts || !shortcuts.length"
+            v-model="timeRange"
+            @on-change="radioChange"
+            type="button"
+          >
+            <Radio :label="today" :disabled="disabledToday">今天</Radio>
+            <Radio :label="yesterday" :disabled="disabledYesterday">昨天</Radio>
+            <Radio :label="sevenDays" :disabled="disabledSeven">最近七天</Radio>
+            <Radio :label="thirtyDays" :disabled="disabledThirty">最近30天</Radio>
           </RadioGroup>
-          <DatePicker :disabled="disabledDatePicker"
-                      v-model="dateRange"
-                      @on-change="dateChange"
-                      :options="options3"
-                      :clearable="false"
-                      :type="datePickerType"
-                      split-panels
-                      placeholder="Select date"
-                      :format="dateFormat"
-                      style="width: 200px" />
+          <RadioGroup
+            v-if="shortcuts && shortcuts.length"
+            v-model="timeRange"
+            @on-change="radioChange"
+            type="button"
+          >
+            <Radio
+              v-for="(item, $index) in shortcuts"
+              :key="$index"
+              :label="item.value"
+              :disabled="item.disabled"
+            >{{item.label}}</Radio>
+          </RadioGroup>
+          <DatePicker
+            :disabled="disabledDatePicker"
+            v-model="dateRange"
+            @on-change="dateChange"
+            :options="options3"
+            :clearable="false"
+            :type="datePickerType"
+            split-panels
+            placeholder="Select date"
+            :format="dateFormat"
+            style="width: 200px"
+          />
         </FormItem>
-        <FormItem label="方式"
-                  v-if="displayTypeItem">
-          <RadioGroup v-model="filterBy"
-                      @on-change="filterChange"
-                      type="button">
-            <Radio label="minute"
-                   :disabled="disabledMinute">按分</Radio>
-            <Radio label="hour"
-                   :disabled="disabledHour">按时</Radio>
-            <Radio label="day"
-                   :disabled="disabledDay">按日</Radio>
-            <Radio label="week"
-                   :disabled="disabledWeek">按周</Radio>
-            <Radio label="month"
-                   :disabled="disabledMonth">按月</Radio>
+        <FormItem label="方式" v-if="displayTypeItem">
+          <RadioGroup v-model="filterBy" @on-change="filterChange" type="button">
+            <Radio label="minute" :disabled="disabledMinute">按分</Radio>
+            <Radio label="hour" :disabled="disabledHour">按时</Radio>
+            <Radio label="day" :disabled="disabledDay">按日</Radio>
+            <Radio label="week" :disabled="disabledWeek">按周</Radio>
+            <Radio label="month" :disabled="disabledMonth">按月</Radio>
           </RadioGroup>
         </FormItem>
       </Form>
@@ -105,14 +109,24 @@ export default {
     displayTypeItem: {
       type: Boolean,
       default: false
+    },
+    disabledDate: {
+      type: Function
+    },
+    shortcuts: {
+      type: Array,
+      default() {
+        return []
+      }
     }
   },
   components: {},
-  data () {
+  data() {
     const today = moment().format(DATE_FORMAT_BY_DAY)
     const yesterday = moment().subtract(1, 'days').format(DATE_FORMAT_BY_DAY)
     const sevenDays = moment().subtract(7, 'days').format(DATE_FORMAT_BY_DAY)
     const thirtyDays = moment().subtract(30, 'days').format(DATE_FORMAT_BY_DAY)
+    const that = this
     return {
       today: `${today}-${today}`,
       yesterday: `${yesterday}-${yesterday}`,
@@ -128,7 +142,10 @@ export default {
       disabledMonth: true,
       disabledToday: false,
       options3: {
-        disabledDate (date) {
+        disabledDate(date) {
+          if (that.disabledDate) {
+            return that.disabledDate(date)
+          }
           let initdate = Date.now() - 30 * 24 * 60 * 60 * 1000
           return (date && date.valueOf() < initdate) || (date && date.valueOf() > Date.now())
         }
@@ -138,12 +155,12 @@ export default {
   computed: {},
   watch: {},
   methods: {
-    radioChange (newVal) {
+    radioChange(newVal) {
       const [st, et] = newVal.split('-')
       this.dateRange = [moment(`${st} 00:00:00`, `${DATE_FORMAT_BY_DAY} HH:mm:ss`).toDate(), moment(`${et} 23:59:59`, `${DATE_FORMAT_BY_DAY} HH:mm:ss`).toDate()]
       this.changeCallback(st, et)
     },
-    filterChange () {
+    filterChange() {
       const [st, et] = this.timeRange
       const days = (new Date(et).getTime() - new Date(st).getTime()) / DAY_MILL
       this.$emit('change', {
@@ -152,7 +169,7 @@ export default {
         days
       })
     },
-    dateChange (args, [st, et]) {
+    dateChange(args, [st, et]) {
       const [startAt, endAt] = args
       const days = (new Date(endAt).getTime() - new Date(startAt).getTime()) / DAY_MILL
       this.disabledDay = days <= 0
@@ -168,7 +185,7 @@ export default {
         days
       })
     },
-    changeCallback (st, et) {
+    changeCallback(st, et) {
       const days = (new Date(et).getTime() - new Date(st).getTime()) / DAY_MILL
       this.disabledDay = days <= 0
       this.disabledWeek = days <= 7
@@ -181,7 +198,7 @@ export default {
     }
   },
 
-  mounted () { }
+  mounted() { }
 }
 </script>
 

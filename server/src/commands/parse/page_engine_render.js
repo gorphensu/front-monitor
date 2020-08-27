@@ -99,7 +99,6 @@ class PageEngineRender extends ParseBase {
     let countAtTimeStamp = recordAt
     let countAtMap = new Map()
     let recordList = []
-
     let vueRecord = {
       item_id: itemId,
       count_at_time: countAtTimeStamp,
