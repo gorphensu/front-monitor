@@ -105,6 +105,7 @@ class SummaryPageEngineRender extends Base {
         res['project_id'] = item.project_id
         res['ucid'] = item.ucid
         res['pagecode'] = item.pagecode
+        res['tenantid'] = item.tenantid
         res['url'] = item.url
         res['render_time'] = item.cost_time
         res['count_size'] = 0
