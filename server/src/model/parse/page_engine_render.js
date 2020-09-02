@@ -55,6 +55,9 @@ async function insert(recordJson, projectId, createAt) {
     update_time: updateAt,
     create_time: updateAt
   }
+  if(tenantid) {
+    debugger
+  }
   let insertResult = await Knex
     .returning('id')
     .insert(data)

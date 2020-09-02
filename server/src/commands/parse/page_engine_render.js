@@ -35,6 +35,7 @@ class PageEngineRender extends ParseBase {
     let recordType = _.get(record, ['type'], '')
     let code = _.get(record, ['code'], '')
     let ucid = _.get(record, ['common', 'ucid'])
+    let tenantid = _.get(record, ['common', 'tenantid'])
     let browser = _.get(record, ['ua', 'browser'])
     let projectId = _.get(record, ['project_id'], '')
     let itemId = _.get(record, ['detail', 'itemid'], '')
@@ -58,6 +59,9 @@ class PageEngineRender extends ParseBase {
       return false
     }
     if (!ucid) {
+      return false
+    }
+    if (!tenantid) {
       return false
     }
     if (!browser) {
@@ -87,6 +91,7 @@ class PageEngineRender extends ParseBase {
     console.log('page_engine_render.js processRecordAndCacheInProjectMap record');
     let projectId = _.get(record, ['project_id'], '')
     let ucid = _.get(record, ['common', 'ucid'])
+    let tenantid = _.get(record, ['common', 'tenantid'])
     let url = _.get(record, ['common', 'page_type'])
     let costTime = _.get(record, ['detail', 'costtime'], '')
     let browser = _.get(record, ['ua', 'browser'])
@@ -103,6 +108,7 @@ class PageEngineRender extends ParseBase {
       item_id: itemId,
       count_at_time: countAtTimeStamp,
       ucid,
+      tenantid,
       cost_time: costTime,
       pagecode: pageCode,
       url,
