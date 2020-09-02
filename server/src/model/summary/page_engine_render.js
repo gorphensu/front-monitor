@@ -112,12 +112,14 @@ async function replaceAndAutoIncrementRecord(recordInfo, visitAt) {
   let projectId = recordInfo.project_id
   let ucid = recordInfo.ucid
   let pagecode = recordInfo.pagecode
+  let tenantid = recordInfo.tenantid
   let url = recordInfo.url
   // 查询是否存在该数据
   let rawRecordList = await getRecord(projectId, visitAt, {
-    ucid,
+    // ucid,
+    tenantid,
     pagecode,
-    url,
+    // url,
     project_id: projectId
   })
   // 插入更新
@@ -172,6 +174,7 @@ async function updateRecord(projectId, visitAt, recordInfo) {
   let tableName = getTableName(projectId, visitAt)
   let ucid = recordInfo.ucid
   let pagecode = recordInfo.pagecode
+  let tenantid = recordInfo.tenantid
   let url = recordInfo.url
   let updateAt = moment().unix()
   let data = Object.assign({}, recordInfo, {
@@ -180,9 +183,8 @@ async function updateRecord(projectId, visitAt, recordInfo) {
 
   let affectRows = await Knex(tableName)
     .where('project_id', '=', projectId)
-    .where('ucid', '=', ucid)
+    .where('tenantid', '=', ucid)
     .where('pagecode', '=', pagecode)
-    .where('url', '=', url)
     .update(data)
     .catch(e => {
       Logger.warn(`${tableName} page engine updateRecord 更新失败, 错误原因`, e)
