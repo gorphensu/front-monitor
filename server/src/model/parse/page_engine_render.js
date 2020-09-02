@@ -3,7 +3,6 @@ import _ from 'lodash'
 import Knex from '~/src/library/mysql'
 import Logger from '~/src/library/logger'
 import DatabaseUtil from '~/src/library/utils/modules/database'
-import MProject from '~/src/model/project/project'
 import DATE_FORMAT from '~/src/constants/date_format'
 
 const BASE_TABLE_NAME = 't_o_page_engine_render'
@@ -13,6 +12,7 @@ const TABLE_COLUMN = [
   `item_id`,
   `project_id`,
   `ucid`,
+  `tenantid`,
   `count_type`,
   `count_at_time`,
   `pagecode`,
@@ -42,6 +42,7 @@ async function insert(recordJson, projectId, createAt) {
   let data = {
     count_at_time: recordJson.count_at_time,
     ucid: recordJson.ucid,
+    tenantid: recordJson.tenantid,
     project_id: projectId,
     count_type: 'minute',
     item_id: recordJson.item_id,
@@ -85,6 +86,9 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
         }
         if (condition['browser']) {
           builder.where('browser', 'like', `%${condition['browser']}%`)
+        }
+        if (condition['tenantid']) {
+          builder.where('tenantid', condition['tenantid'])
         }
       })
       .catch(e => {

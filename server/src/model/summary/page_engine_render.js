@@ -209,10 +209,37 @@ async function getRecord(projectId, visitAt, condition = {}) {
   return recordList
 }
 
+async function getList(projectId, startAt, finishAt, condition = {}) {
+  // let startAtMoment = moment.unix(startAt)
+  // let endAtMoment = moment.unix(finishAt)
+  let recordList = []
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
+  Logger.log('summary\page-engine-render.js getList tableNameList', tableNameList)
+  console.log('ciondition', condition)
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .whereBetween('update_time', [startAt, finishAt])
+      .andWhere(builder => {
+        if (condition['pagecode']) {
+          builder.where('pagecode', 'like', condition['pagecode'])
+        }
+      })
+      .catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    recordList = recordList.concat(rawRecordList)
+  }
+  return recordList
+}
+
 export default {
   getTableName,
   updateRecord,
   getRecord,
   insertRecord,
-  replaceAndAutoIncrementRecord
+  replaceAndAutoIncrementRecord,
+  getList
 }
