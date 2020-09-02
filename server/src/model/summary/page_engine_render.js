@@ -6,11 +6,13 @@ import MPageEngineRenderParser from '~/src/model/parse/page_engine_render'
 import MProject from '~/src/model/project/project'
 import moment from 'moment'
 import Knex from '~/src/library/mysql'
+import { match } from 'date-fns/locale/af'
 
 const TABLE_COLUMN = [
   `id`,
   `project_id`,
   `ucid`,
+  `tenantid`,
   `pagecode`,
   `ctrlsize`,
   `container_ctrl`,
@@ -217,15 +219,42 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
   let recordList = []
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
   Logger.log('summary\page-engine-render.js getList tableNameList', tableNameList)
-  console.log('ciondition', condition)
+  console.log('condition', condition)
   for (let tableName of tableNameList) {
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
       .from(tableName)
       .whereBetween('update_time', [startAt, finishAt])
       .andWhere(builder => {
-        if (condition['pagecode']) {
-          builder.where('pagecode', 'like', condition['pagecode'])
+        // if (condition['pagecode']) {
+        //   builder.where('pagecode', condition['pagecode'])
+        // }
+        // if (condition['tenantid']) {
+        //   builder.where('tenantid', condition['tenantid'])
+        // }
+        let conditionOperationMap = {
+          '__range_min__': '>=',
+          '__range_max__': '<=',
+          '__like__': 'like'
+        }
+        for (let key in condition) {
+          if (condition[key]) {
+            let matcher = key.match(/(__.+__)(.+)?/)
+            let operation = ''
+            let prop = key
+            if (matcher && matcher[1]) {
+              operation = conditionOperationMap[matcher[1]]
+              prop = matcher[2]
+            }
+            if (operation) {
+              console.log('prop', prop)
+              console.log('operation', operation)
+              console.log('condition[key]', condition[key])
+              builder.where(prop, operation, condition[key])
+            } else {
+              builder.where(prop, condition[prop])
+            }
+          }
         }
       })
       .catch(e => {

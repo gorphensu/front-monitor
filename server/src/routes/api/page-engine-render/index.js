@@ -47,9 +47,12 @@ const getSummaryPageEngineRenderList = RouterConfigBuilder.routerConfigBuilder(
     // 获取开始&结束时间
     let startAt = _.get(request, ['st'], 0)
     let endAt = _.get(request, ['et'], 0)
+    let loadedTime = _.get(request, ['loadedtime'])
 
     let condition = {
-      pagecode: _.get(request, ['pagecode'], '')
+      pagecode: _.get(request, ['pagecode'], ''),
+      tenantid: _.get(request, ['tenantid'], ''),
+      __range_min__loaded_time: loadedTime
     }
 
     const currentStamp = moment().unix()

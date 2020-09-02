@@ -1,7 +1,5 @@
 <template>
   <div class="container page-engine-container">
-    {{detailModal}}
-    {{detailData}}
     <Row>
       <i-col span="24">
         <Card shadow>
@@ -16,10 +14,24 @@
             <i-input
               class="pagecode-input"
               search
+              v-model="tenantid"
+              placeholder="租户code"
+              @on-enter="pagecodeChange"
+            ></i-input>
+            <i-input
+              class="pagecode-input"
+              search
               v-model="pagecode"
               placeholder="表单code"
               @on-enter="pagecodeChange"
             ></i-input>
+            <i-select class="pagecode-input" v-model="loadedTimeType" placeholder="加载所需时间" clearable @on-change="pagecodeChange">
+              <i-option
+                v-for="(item, index) in loadedTimeTypes"
+                :key="index"
+                :value="item.value"
+              >{{item.label}}</i-option>
+            </i-select>
           </div>
           <span>控件数量与渲染时间的关系</span>
           <div style="height: 400px;">
@@ -28,19 +40,19 @@
               <v-axis />
               <v-tooltip :onChange="itemFormatter" />
               <v-point
-                  position="ctrlsize*render_time"
-                  :size="4"
-                  :opacity="0.65"
-                  shape="circle"
-                  color="containertype"
-                  :onClick="pointClickHandler"
-                />
+                position="ctrlsize*render_time"
+                :size="4"
+                :opacity="0.65"
+                shape="circle"
+                color="containertype"
+                :onClick="pointClickHandler"
+              />
               <!-- <v-view
                 :data="getDataByCtrlSizeAndRenderTime(chartData)"
                 :scale="ctrlSizeAndRenderTimeScale"
               >
                 <v-line position="ctrlsize*render_time" />
-              </v-view> -->
+              </v-view>-->
               <!-- <v-view :data="chartData">
                 <v-point
                   position="ctrlsize*render_time"
@@ -50,7 +62,7 @@
                   color="containertype"
                   :onClick="pointClickHandler"
                 />
-              </v-view> -->
+              </v-view>-->
             </v-chart>
           </div>
 
@@ -69,21 +81,21 @@
                   color="containertype"
                   :onClick="pointClickHandler"
                 />
-              </v-view> -->
+              </v-view>-->
               <v-point
-                  position="ctrlsize*loaded_time"
-                  :size="4"
-                  :opacity="0.65"
-                  shape="circle"
-                  color="containertype"
-                  :onClick="pointClickHandler"
-                />
+                position="ctrlsize*loaded_time"
+                :size="4"
+                :opacity="0.65"
+                shape="circle"
+                color="containertype"
+                :onClick="pointClickHandler"
+              />
               <!-- <v-view
                 :data="getDataByCtrlSizeAndLoadedTime(chartData)"
                 :scale="ctrlSizeAndLoadedTimeScale"
               >
                 <v-line position="ctrlsize*loaded_time" />
-              </v-view> -->
+              </v-view>-->
             </v-chart>
           </div>
 
@@ -129,6 +141,7 @@
             :key="index"
           >{{getContainerCtrlDetail(item)}}</div>
         </li>
+        <li data-v-gtlv>租户：{{detailData.tenantid}}</li>
         <li data-v-gtlv>用户：{{detailData.ucid}}</li>
         <li data-v-gtlv>浏览地址：{{detailData.url}}</li>
       </ul>
@@ -161,6 +174,21 @@ export default {
       height: 400,
       dateRange: [moment(moment().format(DATE_FORMAT_BY_DAY)).toDate(), moment(moment().subtract(-1, 'days').format(DATE_FORMAT_BY_DAY)).toDate()],
       pagecode: '',
+      tenantid: '',
+      loadedTimeType: '',
+      loadedTimeTypes: [{
+        value: 3000,
+        label: '3秒以上'
+      }, {
+        value: 5000,
+        label: '5秒以上'
+      }, {
+        value: 8000,
+        label: '8秒以上'
+      }, {
+        value: 10000,
+        label: '10秒以上'
+      }],
       ctrlSizeAndRenderTimeScale: [{
         dataKey: 'ctrlsize',
         sync: true
@@ -204,19 +232,16 @@ export default {
       return `type: ${res.type} => detail: ${res.detail}`
     },
     pointClickHandler(eventPoint) {
-      // let data = eventPoint.data._origin
-      // try {
-      //   data.loaded_event_detail = JSON.parse(data.loaded_event_detail)
-      //   data.container_ctrl_detail = JSON.parse(data.container_ctrl_detail)
-      //   this.detailModal = true
-      // } catch {
-      //   data.loaded_event_detail = []
-      //   data.container_ctrl_detail = []
-      // }
-      // this.detailData = {}
-      this.$set(this, 'detailData', {})
-      // this.detailModal = true
-      console.log('aaaaaaaaaaaaaaaaaa')
+      let data = eventPoint.data._origin
+      try {
+        data.loaded_event_detail = JSON.parse(data.loaded_event_detail)
+        data.container_ctrl_detail = JSON.parse(data.container_ctrl_detail)
+        this.detailModal = true
+      } catch {
+        data.loaded_event_detail = []
+        data.container_ctrl_detail = []
+      }
+      this.detailData = data
     },
     itemFormatter(e) {
       let attrs = e.tooltip._attrs
@@ -270,7 +295,7 @@ export default {
           as: ['ctrlsize', 'render_time']
         })
         return dv
-      } catch (e){
+      } catch (e) {
         console.error(e)
         this.isShowLoading = false
       }
@@ -286,7 +311,7 @@ export default {
           as: ['ctrlsize', 'loaded_time'],
         })
         return dv
-      } catch(e) {
+      } catch (e) {
         console.error(e)
         this.isShowLoading = false
       }
@@ -331,7 +356,9 @@ export default {
         const res = await fetchSummaryPageEngineRenderList({
           st: +moment(this.dateRange[0]),
           et: +moment(this.dateRange[1]),
-          pagecode: this.pagecode
+          pagecode: this.pagecode,
+          tenantid: this.tenantid,
+          loadedtime: this.loadedTimeType
         })
         this.chartData = this.getViewData(res.data)
         this.isShowLoading = false
@@ -372,7 +399,9 @@ export default {
     const res = await fetchSummaryPageEngineRenderList({
       st: moment(moment().format('YYYY/MM/DD 00:00'), 'YYYY/MM/DD HH:mm:ss').unix() * 1000,
       et: moment(moment().format('YYYY/MM/DD 23:59'), 'YYYY/MM/DD HH:mm:ss').unix() * 1000,
-      pagecode: this.pagechde
+      pagecode: this.pagechde,
+      tenantid: this.tenantid,
+      loadedtime: this.loadedTimeType
     })
     this.chartData = this.getViewData(res.data)
     this.isShowLoading = false
