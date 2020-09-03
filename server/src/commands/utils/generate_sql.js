@@ -534,6 +534,7 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       break
     case MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
     default:
   }
 
