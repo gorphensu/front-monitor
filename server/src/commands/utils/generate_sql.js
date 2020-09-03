@@ -36,6 +36,7 @@ const MULIT_T_O_VUE_COMPONENT_RENDER = 't_o_vue_component_render' // vue_compone
 const MULIT_T_O_VUE_COMPONENT_OPERATION = 't_o_vue_component_operation' // vue_component_operation 统计vue控件的各个方法的影响渲染的时间
 const MULIT_T_O_PAGE_ENGINE_RENDER = 't_o_page_engine_render'
 const MULIT_T_R_PAGE_ENGINE_RENDER = 't_r_page_engine_render' // 引擎统计表
+const MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY = 't_r_page_engine_render_summary' // 按照一天去统计前一天的数据
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -475,6 +476,19 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_RENDER] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按小时记录page engine引擎渲染花销';
 `
 
+TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`tenantid\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属租户',
+  \`render_time\` int(20) NOT NULL DEFAULT '0' COMMENT '渲染耗时',
+  \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
+  \`count_at_time\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计日期, day => YYYY-MM-DD,
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_tenantid_count_at_time\` (\`id\`, \`tenantid\`, \`count_at_time\`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按租户,按天记录page engine统计表单平均时间';
+`
+
 function generate(baseTableName, projectId = '', tableTime = '') {
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
@@ -518,6 +532,8 @@ function generate(baseTableName, projectId = '', tableTime = '') {
     case MULIT_T_R_PAGE_ENGINE_RENDER:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
       break
+    case MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
     default:
   }
 
@@ -622,7 +638,8 @@ SET foreign_key_checks = 0;
           MULIT_T_O_VUE_COMPONENT_RENDER,
           MULIT_T_O_VUE_COMPONENT_OPERATION,
           MULIT_T_O_PAGE_ENGINE_RENDER,
-          MULIT_T_R_PAGE_ENGINE_RENDER
+          MULIT_T_R_PAGE_ENGINE_RENDER,
+          MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`
