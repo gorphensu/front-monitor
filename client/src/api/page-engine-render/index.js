@@ -20,3 +20,11 @@ export const fetchSummaryPageEngineRenderList = (params) => {
     }
   })
 }
+
+export const fetchSummaryPageEngineRenderSummary = (params) => {
+  return axios.request({
+    url: `project/${getProjectId()}/api/pageengine/summary`,
+    method: 'get',
+    params
+  })
+}

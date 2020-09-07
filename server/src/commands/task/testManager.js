@@ -14,7 +14,7 @@ let projectBaseUri = path.resolve(__dirname, '../../../') // 项目所在文件�
 class TaskManager extends Base {
   static get signature() {
     return `
-     Task:Manager
+     Task:TestManager
      `
   }
 
@@ -59,7 +59,7 @@ class TaskManager extends Base {
 
   async getOtherTaskMangerPidList() {
     // 命令本身也会被检测出来, sh -c npm run warning && NODE_ENV=development node dist/fee.js "Task:Manager"
-    let command = 'ps aS|grep Task:Manager|grep node|grep fee|grep -v grep | grep -v  \'"Task:Manager"\''
+    let command = 'ps aS|grep Task:Manager|grep node|grep fee|grep -v grep | grep -v  \'"Task:RTestManager"\''
     this.log(`检测命令 => ${command}`)
     let rawCommandOutput = shell.exec(command, {
       async: false,
@@ -122,31 +122,38 @@ class TaskManager extends Base {
     schedule.scheduleJob('0 */1 * * * *', function () {
       that.log('registerTaskRepeatPer1Minute 开始执行')
 
-      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let twoMinuteAgoByMinute = moment().subtract(2, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let threeMinuteAgoByMinute = moment().subtract(3, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let fourMinuteAgoByMinute = moment().subtract(4, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let fiveMinuteAgoByMinute = moment().subtract(5, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let tenMinuteAgoByMinute = moment().subtract(10, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let twoMinuteAgoByMinute = moment().subtract(2, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let threeMinuteAgoByMinute = moment().subtract(3, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let fourMinuteAgoByMinute = moment().subtract(4, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let fiveMinuteAgoByMinute = moment().subtract(5, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let tenMinuteAgoByMinute = moment().subtract(10, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      that.log(`[按分钟] 每分钟启动一次SaveLog `)
-      that.execCommand('SaveLog:Nginx', []);
-      that.log(`[按分钟] 每分钟启动一次WatchDog:Alarm, 监控平台运行情况 `)
-      that.execCommand('WatchDog:Alarm', [])
+      // that.log(`[按分钟] 每分钟启动一次SaveLog `)
+      // that.execCommand('SaveLog:Nginx', []);
+      // that.log(`[按分钟] 每分钟启动一次WatchDog:Alarm, 监控平台运行情况 `)
+      // that.execCommand('WatchDog:Alarm', [])
 
-      that.log(`[按分钟] 解析kafka日志, 分析错误详情`)
-      that.dispatchParseCommand('Parse:Monitor', twoMinuteAgoByMinute, nowByMinute)
+      // that.log(`[按分钟] 解析kafka日志, 分析错误详情`)
+      // that.dispatchParseCommand('Parse:Monitor', twoMinuteAgoByMinute, nowByMinute)
 
-      that.log(`[按分钟] 上报vue控件渲染时间`)
-      that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
-      that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
+      // that.log(`[按分钟] 上报vue控件渲染时间`)
+      // that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
+      // that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
 
-      that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)
-      that.dispatchParseCommand('Summary:Error', twoMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
-      that.dispatchParseCommand('Summary:Error', threeMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
-      that.dispatchParseCommand('Summary:Error', fourMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
-      that.dispatchParseCommand('Summary:Error', fiveMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
-      that.dispatchParseCommand('Summary:Error', tenMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)
+      // that.dispatchParseCommand('Summary:Error', twoMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // that.dispatchParseCommand('Summary:Error', threeMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // that.dispatchParseCommand('Summary:Error', fourMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // that.dispatchParseCommand('Summary:Error', fiveMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // that.dispatchParseCommand('Summary:Error', tenMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
+
+      let commandList = [
+        'Summary:PageEngineRenderSummary'
+      ]
+      for (let commandItem of commandList) {
+        that.execCommand(commandItem)
+      }
 
       that.log('registerTaskRepeatPer1Minute 命令分配完毕')
     })
@@ -161,46 +168,46 @@ class TaskManager extends Base {
     schedule.scheduleJob('15 */10 * * * *', function () {
       that.log('registerTaskRepeatPer10Minute 开始执行')
 
-      let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
-      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      // let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      let oneHourAgoByHour = moment().subtract(1, DATE_FORMAT.UNIT.HOUR).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      // let oneHourAgoByHour = moment().subtract(1, DATE_FORMAT.UNIT.HOUR).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
 
-      let fifteenMinuteAgoByminute = moment().subtract(15, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let fifteenMinuteAgoByminute = moment().subtract(15, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      // 周期性执行命令
-      let intervalCommandList = [
-        'CreateCache:UpdatePerOneMinute'
-      ]
-      for (let intervalCommand of intervalCommandList) {
-        // 周期性执行命令
-        that.execCommand(intervalCommand)
-      }
+      // // 周期性执行命令
+      // let intervalCommandList = [
+      //   'CreateCache:UpdatePerOneMinute'
+      // ]
+      // for (let intervalCommand of intervalCommandList) {
+      //   // 周期性执行命令
+      //   that.execCommand(intervalCommand)
+      // }
 
-      let parseCommandList = [
-        'Parse:UV',
-        'Parse:TimeOnSiteByHour',
-        'Parse:Performance',
-        'Parse:Monitor'
-      ]
-      for (let parseCommand of parseCommandList) {
-        // 解析最近15分钟内的数据
-        that.dispatchParseCommand(parseCommand, fifteenMinuteAgoByminute, nowByMinute)
-      }
+      // let parseCommandList = [
+      //   'Parse:UV',
+      //   'Parse:TimeOnSiteByHour',
+      //   'Parse:Performance',
+      //   'Parse:Monitor'
+      // ]
+      // for (let parseCommand of parseCommandList) {
+      //   // 解析最近15分钟内的数据
+      //   that.dispatchParseCommand(parseCommand, fifteenMinuteAgoByminute, nowByMinute)
+      // }
 
-      // 汇总命令
-      let summaryCommandList = [
-        'Summary:UV',
-        'Summary:NewUser',
-        'Summary:Performance',
-        'Summary:Error'
-      ]
-      for (let summaryCommand of summaryCommandList) {
-        // 当前小时
-        that.dispatchParseCommand(summaryCommand, nowByHour, DATE_FORMAT.UNIT.HOUR)
-        // 一小时前
-        that.dispatchParseCommand(summaryCommand, oneHourAgoByHour, DATE_FORMAT.UNIT.HOUR)
-      }
+      // // 汇总命令
+      // let summaryCommandList = [
+      //   'Summary:UV',
+      //   'Summary:NewUser',
+      //   'Summary:Performance',
+      //   'Summary:Error'
+      // ]
+      // for (let summaryCommand of summaryCommandList) {
+      //   // 当前小时
+      //   that.dispatchParseCommand(summaryCommand, nowByHour, DATE_FORMAT.UNIT.HOUR)
+      //   // 一小时前
+      //   that.dispatchParseCommand(summaryCommand, oneHourAgoByHour, DATE_FORMAT.UNIT.HOUR)
+      // }
 
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
     })
@@ -215,34 +222,34 @@ class TaskManager extends Base {
     schedule.scheduleJob('30 15 * * * *', function () {
       that.log('registerTaskRepeatPer1Hour 开始执行')
 
-      let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
-      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
+      // let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      let lastDayStartAtByMinute = moment().subtract(1, DATE_FORMAT.UNIT.DAY).startOf(DATE_FORMAT.UNIT.DAY).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let lastDayStartAtByMinute = moment().subtract(1, DATE_FORMAT.UNIT.DAY).startOf(DATE_FORMAT.UNIT.DAY).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      // 解析命令
-      let parseCommandList = [
-        'Parse:Device',
-        'Parse:MenuClick',
-        'Parse:UserFirstLoginAt'
-      ]
-      for (let parseCommand of parseCommandList) {
-        // 解析昨天到今天的数据
-        that.dispatchParseCommand(parseCommand, lastDayStartAtByMinute, nowByMinute)
-      }
+      // // 解析命令
+      // let parseCommandList = [
+      //   'Parse:Device',
+      //   'Parse:MenuClick',
+      //   'Parse:UserFirstLoginAt'
+      // ]
+      // for (let parseCommand of parseCommandList) {
+      //   // 解析昨天到今天的数据
+      //   that.dispatchParseCommand(parseCommand, lastDayStartAtByMinute, nowByMinute)
+      // }
 
-      // 汇总命令
-      let summaryCommandList = [
-        'Summary:UV',
-        'Summary:NewUser',
-        'Summary:Performance',
-        'Summary:Error',
-        'Summary:TimeOnSite'
-      ]
-      for (let summaryCommand of summaryCommandList) {
-        // 当日数据
-        that.dispatchParseCommand(summaryCommand, nowByDay, DATE_FORMAT.UNIT.DAY)
-      }
+      // // 汇总命令
+      // let summaryCommandList = [
+      //   'Summary:UV',
+      //   'Summary:NewUser',
+      //   'Summary:Performance',
+      //   'Summary:Error',
+      //   'Summary:TimeOnSite'
+      // ]
+      // for (let summaryCommand of summaryCommandList) {
+      //   // 当日数据
+      //   that.dispatchParseCommand(summaryCommand, nowByDay, DATE_FORMAT.UNIT.DAY)
+      // }
 
       that.log('registerTaskRepeatPer1Hour 命令分配完毕')
     })
@@ -250,18 +257,18 @@ class TaskManager extends Base {
     schedule.scheduleJob('1 0 * * * *', function () {
       that.log('registerTaskRepeatPer1Hour 开始执行')
 
-      let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
-      let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
-      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
-      let nowBySecond = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_SECOND)
-      // 汇总命令
-      let summaryCommandList = [
-        'Summary:PageEngineRender',
-      ]
-      for (let summaryCommand of summaryCommandList) {
-        // 当日数据
-        that.dispatchParseCommand(summaryCommand, nowByMinute, DATE_FORMAT.UNIT.MINUTE)
-      }
+      // let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
+      // let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      // let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      // let nowBySecond = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_SECOND)
+      // // 汇总命令
+      // let summaryCommandList = [
+      //   'Summary:PageEngineRender',
+      // ]
+      // for (let summaryCommand of summaryCommandList) {
+      //   // 当日数据
+      //   that.dispatchParseCommand(summaryCommand, nowByMinute, DATE_FORMAT.UNIT.MINUTE)
+      // }
 
       that.log('registerTaskRepeatPer1Hour 命令分配完毕')
     })
@@ -275,48 +282,48 @@ class TaskManager extends Base {
     // 每过6小时, 在35分45秒启动
     schedule.scheduleJob('45 35 */6 * * *', function () {
       that.log('registerTaskRepeatPer6Hour 开始执行')
-      let nowByMonth = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MONTH)
+      // let nowByMonth = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MONTH)
 
-      let oneMonthAgo = moment().subtract(1, DATE_FORMAT.UNIT.MONTH)
-      let oneMonthAgoByMonth = oneMonthAgo.format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MONTH)
+      // let oneMonthAgo = moment().subtract(1, DATE_FORMAT.UNIT.MONTH)
+      // let oneMonthAgoByMonth = oneMonthAgo.format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MONTH)
 
-      let oneDayAgo = moment().subtract(1, DATE_FORMAT.UNIT.DAY)
-      let oneDayAgoByDay = oneDayAgo.format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
+      // let oneDayAgo = moment().subtract(1, DATE_FORMAT.UNIT.DAY)
+      // let oneDayAgoByDay = oneDayAgo.format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
 
-      // 汇总命令-昨日数据
-      let summaryCommandList = [
-        'Summary:UV',
-        'Summary:NewUser',
-        'Summary:Performance',
-        'Summary:Error',
-        'Summary:TimeOnSite'
-      ]
-      for (let summaryCommand of summaryCommandList) {
-        // 当日数据
-        that.dispatchParseCommand(summaryCommand, oneDayAgoByDay, DATE_FORMAT.UNIT.DAY)
-      }
+      // // 汇总命令-昨日数据
+      // let summaryCommandList = [
+      //   'Summary:UV',
+      //   'Summary:NewUser',
+      //   'Summary:Performance',
+      //   'Summary:Error',
+      //   'Summary:TimeOnSite'
+      // ]
+      // for (let summaryCommand of summaryCommandList) {
+      //   // 当日数据
+      //   that.dispatchParseCommand(summaryCommand, oneDayAgoByDay, DATE_FORMAT.UNIT.DAY)
+      // }
 
-      // 汇总命令-按月统计
-      let summaryByMonthCommandList = [
-        'Summary:UV',
-        'Summary:NewUser',
-        'Summary:Performance',
-        'Summary:TimeOnSite',
+      // // 汇总命令-按月统计
+      // let summaryByMonthCommandList = [
+      //   'Summary:UV',
+      //   'Summary:NewUser',
+      //   'Summary:Performance',
+      //   'Summary:TimeOnSite',
 
-        'Summary:SystemBrowser',
-        'Summary:SystemDevice',
-        'Summary:SystemOS'
-        // 'Summary:SystemRuntimeVersion'
-      ]
-      for (let summaryCommand of summaryByMonthCommandList) {
-        // 当月数据
-        that.dispatchParseCommand(summaryCommand, nowByMonth, DATE_FORMAT.UNIT.MONTH)
-        // 上月数据
-        that.dispatchParseCommand(summaryCommand, oneMonthAgoByMonth, DATE_FORMAT.UNIT.MONTH)
-      }
+      //   'Summary:SystemBrowser',
+      //   'Summary:SystemDevice',
+      //   'Summary:SystemOS'
+      //   // 'Summary:SystemRuntimeVersion'
+      // ]
+      // for (let summaryCommand of summaryByMonthCommandList) {
+      //   // 当月数据
+      //   that.dispatchParseCommand(summaryCommand, nowByMonth, DATE_FORMAT.UNIT.MONTH)
+      //   // 上月数据
+      //   that.dispatchParseCommand(summaryCommand, oneMonthAgoByMonth, DATE_FORMAT.UNIT.MONTH)
+      // }
 
-      // 清理历史log
-      that.execCommand('Utils:CleanOldLog')
+      // // 清理历史log
+      // that.execCommand('Utils:CleanOldLog')
 
       that.log('registerTaskRepeatPer6Hour 命令分配完毕')
     })
@@ -330,15 +337,15 @@ class TaskManager extends Base {
     // 每天1时1分1秒启动
     // 30 33 16 * * *
     schedule.scheduleJob('1 1 1 */1 * *', function () {
-      that.log('registerTaskRepeatPer1Day 开始执行')
-      // 解析命令
-      let commandList = [
-        'Utils:CleanNginxLog',
-        'Summary:PageEngineRenderSummary'
-      ]
-      for (let commandItem of commandList) {
-        that.execCommand(commandItem)
-      }
+      // that.log('registerTaskRepeatPer1Day 开始执行')
+      // // 解析命令
+      // let commandList = [
+      //   'Utils:CleanNginxLog',
+      //   'Summary:PageEngineRenderSummary'
+      // ]
+      // for (let commandItem of commandList) {
+      //   that.execCommand(commandItem)
+      // }
       that.log('registerTaskRepeatPer1Day 命令分配完毕')
     })
   }

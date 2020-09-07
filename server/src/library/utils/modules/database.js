@@ -131,6 +131,8 @@ function getDatabaseTimeList (startAt, endAt, type) {
   }
   startMoment = moment.unix(startAt).startOf(type)
   endMoment = moment.unix(endAt).endOf(type)
+  console.log('startMoment', startMoment)
+  console.log('endMoment', endMoment)
   for (let timeAt = startMoment.unix(); timeAt <= endMoment.unix(); timeAt += timeStep) {
     let time = moment.unix(timeAt).format(dateBaseFormat)
     countAtTimeList.push(time)

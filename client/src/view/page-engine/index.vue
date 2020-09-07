@@ -25,7 +25,13 @@
               placeholder="表单code"
               @on-enter="pagecodeChange"
             ></i-input>
-            <i-select class="pagecode-input" v-model="loadedTimeType" placeholder="加载所需时间" clearable @on-change="pagecodeChange">
+            <i-select
+              class="pagecode-input"
+              v-model="loadedTimeType"
+              placeholder="加载所需时间"
+              clearable
+              @on-change="pagecodeChange"
+            >
               <i-option
                 v-for="(item, index) in loadedTimeTypes"
                 :key="index"
@@ -33,9 +39,16 @@
               >{{item.label}}</i-option>
             </i-select>
           </div>
+          <span>表单加载耗时统计</span>
+          <div style="height: 400px">
+            <Loading :isSpinShow="isShowLoading"></Loading>
+            <v-chart :force-fit="true" :height="height" :data="pieChartData" :scale="pieScale">
+              <v-pie position="percent" color="type" :label="label" :select="false" />
+              <v-coord type="theta" />
+            </v-chart>
+          </div>
           <span>控件数量与渲染时间的关系</span>
           <div style="height: 400px;">
-            <Loading :isSpinShow="isShowLoading"></Loading>
             <v-chart :force-fit="true" :height="height" :data="chartData">
               <v-axis />
               <v-tooltip :onChange="itemFormatter" />
@@ -152,7 +165,7 @@
 <script>
 import TimeBar from '@/view/components/time-bar'
 import Loading from '@/view/components/loading/loading.vue'
-import { fetchSummaryPageEngineRenderList } from '@/api/page-engine-render'
+import { fetchSummaryPageEngineRenderList, fetchSummaryPageEngineRenderSummary } from '@/api/page-engine-render'
 import moment from 'moment'
 import DataSet from '@antv/data-set'
 import { Modal } from 'iview'
@@ -203,7 +216,18 @@ export default {
         dataKey: 'loaded_time',
         sync: true
       }],
-      detailData: {}
+      detailData: {},
+      label: ['percent', {
+        formatter: (val, item) => {
+          return item.point.type + ':  ' + val
+        }
+      }],
+      pieChartData: [],
+      pieScale: [{
+        dataKey: 'percent',
+        min: 0,
+        formatter: '.0%'
+      }]
     }
   },
   methods: {
@@ -368,16 +392,65 @@ export default {
       }
     },
 
+    async fetchPieData() {
+      try {
+        let now = moment()
+        let start = +moment(this.dateRange[0])
+        let end = +moment(this.dateRange[1])
+        // 如果开始时间是今天，需要提前一天，因为今天的数据需要第二天0时才提交统计
+        if (now - start < 86400000) {
+          stat = start - 86400000
+        }
+        const res = await fetchSummaryPageEngineRenderSummary({
+          st: start,
+          et: end,
+          tenantid: this.tenantid
+        })
+        let datas = Object.keys(res.data).map(key => {
+          let prop = key
+          if (prop === '0-3') {
+            prop = '3秒内'
+          } else if (prop === '3-5') {
+            prop = '3-5秒'
+          } else if (prop === '5-8') {
+            prop = '5-8秒'
+          } else if (prop === '8-10') {
+            prop = '8-10秒'
+          } else {
+            prop = '10秒以上'
+          }
+          return {
+            value: res['data'][key],
+            type: prop
+          }
+        })
+        const dv = new DataSet.View().source(datas)
+        dv.transform({
+          type: 'percent',
+          field: 'value',
+          dimension: 'type',
+          as: 'percent'
+        })
+        this.pieChartData = dv.rows
+        this.isShowLoading = false
+      } catch {
+        this.pieChartData = []
+        this.isShowLoading = false
+      }
+    },
+
     async timeChange(obj) {
       const {
         dateRange
       } = obj
       this.dateRange = dateRange
       this.fetchListAndRender()
+      this.fetchPieData()
     },
 
     async pagecodeChange() {
       this.fetchListAndRender()
+      this.fetchPieData()
     },
 
     MillisecondToDate(msd) {
@@ -396,6 +469,7 @@ export default {
   },
   async mounted() {
     this.resize()
+    this.fetchPieData()
     const res = await fetchSummaryPageEngineRenderList({
       st: moment(moment().format('YYYY/MM/DD 00:00'), 'YYYY/MM/DD HH:mm:ss').unix() * 1000,
       et: moment(moment().format('YYYY/MM/DD 23:59'), 'YYYY/MM/DD HH:mm:ss').unix() * 1000,

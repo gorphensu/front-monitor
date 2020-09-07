@@ -39,6 +39,7 @@ const registedCommandList = [
   './commands/summary/error_summary', // 统计某一错误的数量
 
   './commands/summary/page_engine_render', // 记录page engine 引擎的渲染时间以及Onlaod时间
+  './commands/summary/page_engine_render_summary',
   
   // 监控
   './commands/watch_dog/saas', //  saas监控
@@ -49,6 +50,7 @@ const registedCommandList = [
   // 任务调度
   './commands/task/manage', //  任务调度
   './commands/task/saveLog',
+  './commands/task/testManager',
   // 工具类命令
   './commands/utils/template_sql', // 生成模板数据
   './commands/utils/generate_sql', //  生成SQL
