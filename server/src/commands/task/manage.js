@@ -331,13 +331,14 @@ class TaskManager extends Base {
     // 30 33 16 * * *
     schedule.scheduleJob('1 1 1 */1 * *', function () {
       that.log('registerTaskRepeatPer1Day 开始执行')
+      let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
       // 解析命令
       let commandList = [
         'Utils:CleanNginxLog',
         'Summary:PageEngineRenderSummary'
       ]
       for (let commandItem of commandList) {
-        that.execCommand(commandItem)
+        that.dispatchParseCommand(commandItem, nowByDay)
       }
       that.log('registerTaskRepeatPer1Day 命令分配完毕')
     })
