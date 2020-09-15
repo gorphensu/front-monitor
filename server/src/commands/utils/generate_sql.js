@@ -37,6 +37,9 @@ const MULIT_T_O_VUE_COMPONENT_OPERATION = 't_o_vue_component_operation' // vue_c
 const MULIT_T_O_PAGE_ENGINE_RENDER = 't_o_page_engine_render'
 const MULIT_T_R_PAGE_ENGINE_RENDER = 't_r_page_engine_render' // 引擎统计表
 const MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY = 't_r_page_engine_render_summary' // 按照一天去统计前一天的数据
+const MULIT_T_O_PAGE_ENGINE_ONLOAD = 't_o_page_engine_onload'
+const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
+const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -490,6 +493,35 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY] = `(
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按租户,按天记录page engine统计表单平均时间';
 `
 
+
+TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_ONLOAD] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`tenantid\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属租户',
+  \`ucid\` varchar(20) NOT NULL DEFAULT '' COMMENT '用户id',
+  \`item_id\` varchar(36) NOT NULL DEFAULT '' COMMENT '上报id',
+  \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
+  \`url\` varchar(255) COMMENT '浏览器地址',
+  \`browser\` varchar(255) NOT NULL DEFAULT '' COMMENT '浏览器信息',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_count_at_time\` (\`count_at_time\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page engine引擎渲染花销';
+`
+
+TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '所需耗时',
+  \`component_code\` varchar(100) NOT NULL DEFAULT '' COMMENT '控件code',
+  \`component_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`operation_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`stage\` varchar(20) NOT NULL DEFAULT '' COMMENT '收集阶段',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (\`id\`),
+  CONSTRAINT FOREIGN KEY(engine_item_id) REFERENCES ${MULIT_T_O_PAGE_ENGINE_ONLOAD}(item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page 控件耗时花销';
+`
+
 function generate(baseTableName, projectId = '', tableTime = '') {
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
@@ -534,6 +566,15 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
       break
     case MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
+    case MULIT_T_O_PAGE_ENGINE_ONLOAD:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
+    case MULIT_T_R_PAGE_ENGINE_ONLOAD:
+      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      break
+    case MULIT_T_O_PAGE_ENGINE_CTRL:
       fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
       break
     default:
@@ -641,7 +682,10 @@ SET foreign_key_checks = 0;
           MULIT_T_O_VUE_COMPONENT_OPERATION,
           MULIT_T_O_PAGE_ENGINE_RENDER,
           MULIT_T_R_PAGE_ENGINE_RENDER,
-          MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY
+          MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY,
+          MULIT_T_O_PAGE_ENGINE_ONLOAD,
+          MULIT_T_R_PAGE_ENGINE_ONLOAD,
+          MULIT_T_O_PAGE_ENGINE_CTRL
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

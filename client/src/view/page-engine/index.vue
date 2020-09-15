@@ -399,7 +399,7 @@ export default {
         let end = +moment(this.dateRange[1])
         // 如果开始时间是今天，需要提前一天，因为今天的数据需要第二天0时才提交统计
         if (now - start < 86400000) {
-          stat = start - 86400000
+          start = start - 86400000
         }
         const res = await fetchSummaryPageEngineRenderSummary({
           st: start,
@@ -433,7 +433,8 @@ export default {
         })
         this.pieChartData = dv.rows
         this.isShowLoading = false
-      } catch {
+      } catch (e){
+        console.error(e)
         this.pieChartData = []
         this.isShowLoading = false
       }
