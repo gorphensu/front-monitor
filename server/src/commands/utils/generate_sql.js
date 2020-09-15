@@ -38,7 +38,7 @@ const MULIT_T_O_PAGE_ENGINE_RENDER = 't_o_page_engine_render'
 const MULIT_T_R_PAGE_ENGINE_RENDER = 't_r_page_engine_render' // 引擎统计表
 const MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY = 't_r_page_engine_render_summary' // 按照一天去统计前一天的数据
 const MULIT_T_O_PAGE_ENGINE_ONLOAD = 't_o_page_engine_onload'
-const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
+// const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
 const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
 
 let TABLE_TEMPLATE = {}
@@ -519,67 +519,74 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
   \`stage\` varchar(20) NOT NULL DEFAULT '' COMMENT '收集阶段',
   \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   PRIMARY KEY (\`id\`),
-  CONSTRAINT FOREIGN KEY(engine_item_id) REFERENCES ${MULIT_T_O_PAGE_ENGINE_ONLOAD}(item_id)
+  CONSTRAINT FOREIGN KEY(engine_item_id) REFERENCES __$$${MULIT_T_O_PAGE_ENGINE_ONLOAD}$$__(item_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page 控件耗时花销';
 `
 
 function generate(baseTableName, projectId = '', tableTime = '') {
+
+  function createFinalTableName(baseTableName, projectId = '', tableTime = '') {
+    let fininalTableName = `${baseTableName}`
+    switch (baseTableName) {
+      case MUILT_T_O_MONITOR:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MUILT_T_O_MONITOR_EXT:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MUILT_T_O_UV_RECORD:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MUILT_T_R_CITY_DISTRIBUTION:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MUILT_T_R_PERFORMANCE:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MUILT_T_O_SYSTEM_COLLECTION:
+        fininalTableName = `${fininalTableName}_${projectId}`
+        break
+      case MUILT_T_O_USER_FIRST_LOGIN_AT:
+        fininalTableName = `${fininalTableName}_${projectId}`
+        break
+      case MUILT_T_R_ERROR_SUMMARY:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_O_VUE_COMPONENT_RENDER:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_O_VUE_COMPONENT_OPERATION:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_O_PAGE_ENGINE_RENDER:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_R_PAGE_ENGINE_RENDER:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_T_O_PAGE_ENGINE_ONLOAD:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      // case MULIT_T_R_PAGE_ENGINE_ONLOAD:
+      //   fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+      //   break
+      case MULIT_T_O_PAGE_ENGINE_CTRL:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      default:
+    }
+    return fininalTableName
+  }
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
-
+  content = content.replace(/__\$\$([^$]+)\$\$__/g, function(_, $1) {
+    return createFinalTableName($1, projectId, tableTime)
+  })
   // 生成表名
-  let fininalTableName = `${baseTableName}`
-  switch (baseTableName) {
-    case MUILT_T_O_MONITOR:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MUILT_T_O_MONITOR_EXT:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MUILT_T_O_UV_RECORD:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MUILT_T_R_CITY_DISTRIBUTION:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MUILT_T_R_PERFORMANCE:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MUILT_T_O_SYSTEM_COLLECTION:
-      fininalTableName = `${fininalTableName}_${projectId}`
-      break
-    case MUILT_T_O_USER_FIRST_LOGIN_AT:
-      fininalTableName = `${fininalTableName}_${projectId}`
-      break
-    case MUILT_T_R_ERROR_SUMMARY:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_O_VUE_COMPONENT_RENDER:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_O_VUE_COMPONENT_OPERATION:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_O_PAGE_ENGINE_RENDER:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_R_PAGE_ENGINE_RENDER:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_O_PAGE_ENGINE_ONLOAD:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_R_PAGE_ENGINE_ONLOAD:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    case MULIT_T_O_PAGE_ENGINE_CTRL:
-      fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      break
-    default:
-  }
+  let fininalTableName = createFinalTableName(baseTableName, projectId, tableTime)
 
   return `
 CREATE TABLE  IF NOT EXISTS  \`${fininalTableName}\` ${content}
@@ -685,7 +692,7 @@ SET foreign_key_checks = 0;
           MULIT_T_R_PAGE_ENGINE_RENDER,
           MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY,
           MULIT_T_O_PAGE_ENGINE_ONLOAD,
-          MULIT_T_R_PAGE_ENGINE_ONLOAD,
+          // MULIT_T_R_PAGE_ENGINE_ONLOAD,
           MULIT_T_O_PAGE_ENGINE_CTRL
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
