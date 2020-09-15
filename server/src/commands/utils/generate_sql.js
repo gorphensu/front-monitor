@@ -500,6 +500,7 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_ONLOAD] = `(
   \`ucid\` varchar(20) NOT NULL DEFAULT '' COMMENT '用户id',
   \`item_id\` varchar(36) NOT NULL DEFAULT '' COMMENT '上报id',
   \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`count_at_time\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计日期, day => YYYY-MM-DD',
   \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
   \`url\` varchar(255) COMMENT '浏览器地址',
   \`browser\` varchar(255) NOT NULL DEFAULT '' COMMENT '浏览器信息',
