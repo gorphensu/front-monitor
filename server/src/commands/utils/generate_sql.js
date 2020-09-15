@@ -512,7 +512,7 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_ONLOAD] = `(
 
 TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
-  \`engine_item_id\`varchar(36) NOT NULL DEFAULT '' COMMENT '引擎上报id',
+  \`engine_item_id\` varchar(36) NOT NULL DEFAULT '' COMMENT '引擎上报id',
   \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '所需耗时',
   \`component_code\` varchar(100) NOT NULL DEFAULT '' COMMENT '控件code',
   \`component_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
