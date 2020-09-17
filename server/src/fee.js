@@ -24,7 +24,10 @@ const registedCommandList = [
   './commands/parse/user_first_login_at', //  录入新增用户
   './commands/parse/vue_component_render', // 记录vue component的渲染时间
   './commands/parse/page_engine_render', // 记录page engine 引擎的渲染时间以及Onlaod时间
+  './commands/parse/page_engine_onload',
   
+
+
   './commands/save_log/parseNginxLog', // 将ngnix日志落在文件中
   // 从数据库中, 按时间段统计
   './commands/summary/uv', //  统计uv数据
@@ -41,6 +44,8 @@ const registedCommandList = [
   './commands/summary/page_engine_render', // 记录page engine 引擎的渲染时间以及Onlaod时间
   './commands/summary/page_engine_render_summary',
   
+
+
   // 监控
   './commands/watch_dog/saas', //  saas监控
   './commands/watch_dog/alarm',
