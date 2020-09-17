@@ -201,7 +201,7 @@ class PageEngineOnload extends ParseBase {
     for (let [projectId, itemDataAtMap] of this.projectMap) {
       for (let [itemId, itemDataAtTypeList] of itemDataAtMap) {
         let [onloadItem, updateItem] = itemDataAtTypeList
-        if (onloadItem.finished) {
+        if (onloadItem && onloadItem.finished) {
           let isSuccess = await MPageEngineOnload.insert(onloadItem, projectId, onloadItem.countAtTimeStamp)
           processRecordCount++
           if (isSuccess) {
@@ -267,7 +267,7 @@ class PageEngineOnload extends ParseBase {
     for (let [projectId, itemDataAtMap] of this.projectMap) {
       for (let [itemId, itemDataAtTypeList] of itemDataAtMap) {
         let [onloadItem, updateItem] = itemDataAtTypeList
-        if (onloadItem.finished) {
+        if (onloadItem && onloadItem.finished) {
           totalCount++
         }
       }
