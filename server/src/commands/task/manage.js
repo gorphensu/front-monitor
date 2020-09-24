@@ -139,8 +139,8 @@ class TaskManager extends Base {
       that.dispatchParseCommand('Parse:Monitor', twoMinuteAgoByMinute, nowByMinute)
 
       that.log(`[按分钟] 上报vue控件渲染时间`)
-      that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
-      that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
+      // that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
+      // that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
       that.dispatchParseCommand('Parse:PageEngineOnload', twoMinuteAgoByMinute, nowByMinute)
 
       that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)
@@ -258,7 +258,8 @@ class TaskManager extends Base {
       let nowBySecond = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_SECOND)
       // 汇总命令
       let summaryCommandList = [
-        'Summary:PageEngineRender',
+        // 'Summary:PageEngineRender',
+        'Summary:PageEngineOnload'
       ]
       for (let summaryCommand of summaryCommandList) {
         // 当日数据
@@ -337,7 +338,7 @@ class TaskManager extends Base {
       // 解析命令
       let commandList = [
         'Utils:CleanNginxLog',
-        'Summary:PageEngineRenderSummary'
+        'Summary:PageEngineOnloadSummary'
       ]
       for (let commandItem of commandList) {
         that.dispatchParseCommand(commandItem, nowByDay)

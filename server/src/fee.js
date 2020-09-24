@@ -43,7 +43,9 @@ const registedCommandList = [
 
   './commands/summary/page_engine_render', // 记录page engine 引擎的渲染时间以及Onlaod时间
   './commands/summary/page_engine_render_summary',
-  
+  './commands/summary/page_engine_onload',
+  './commands/summary/page_engine_onload_summary',
+
 
 
   // 监控

@@ -38,7 +38,7 @@ const MULIT_T_O_PAGE_ENGINE_RENDER = 't_o_page_engine_render'
 const MULIT_T_R_PAGE_ENGINE_RENDER = 't_r_page_engine_render' // 引擎统计表
 const MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY = 't_r_page_engine_render_summary' // 按照一天去统计前一天的数据
 const MULIT_T_O_PAGE_ENGINE_ONLOAD = 't_o_page_engine_onload'
-// const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
+const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
 const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
 
 let TABLE_TEMPLATE = {}
@@ -525,6 +525,20 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page 控件耗时花销';
 `
 
+TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ONLOAD] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`tenantid\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属租户',
+  \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`url\` varchar(255) COMMENT '浏览器地址',
+  \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
+  \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '记录条数',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_tenantid_pagecode\` (\`tenantid\`,\`pagecode\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按小时记录page 加载平均耗时';
+`
+
 function generate(baseTableName, projectId = '', tableTime = '') {
 
   function createFinalTableName(baseTableName, projectId = '', tableTime = '') {
@@ -572,9 +586,9 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       case MULIT_T_O_PAGE_ENGINE_ONLOAD:
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
-      // case MULIT_T_R_PAGE_ENGINE_ONLOAD:
-      //   fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
-      //   break
+      case MULIT_T_R_PAGE_ENGINE_ONLOAD:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
       case MULIT_T_O_PAGE_ENGINE_CTRL:
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
@@ -694,7 +708,7 @@ SET foreign_key_checks = 0;
           MULIT_T_R_PAGE_ENGINE_RENDER,
           MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY,
           MULIT_T_O_PAGE_ENGINE_ONLOAD,
-          // MULIT_T_R_PAGE_ENGINE_ONLOAD,
+          MULIT_T_R_PAGE_ENGINE_ONLOAD,
           MULIT_T_O_PAGE_ENGINE_CTRL
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)

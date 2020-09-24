@@ -57,7 +57,6 @@ async function inserts(projectId, ctrls, itemData) {
     .insert(datas)
     .from(tableName)
     .catch(e => {
-      debugger
       Logger.warn('page engine ctrl数据插入失败，错误原因=>', e)
       return []
     })

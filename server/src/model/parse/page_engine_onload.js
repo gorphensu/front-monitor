@@ -4,6 +4,7 @@ import Knex from '~/src/library/mysql'
 import Logger from '~/src/library/logger'
 import DatabaseUtil from '~/src/library/utils/modules/database'
 import DATE_FORMAT from '~/src/constants/date_format'
+import ConditionUtils from '~/src/util/conditionUtils'
 
 const BASE_TABLE_NAME = 't_o_page_engine_onload'
 
@@ -16,7 +17,7 @@ const TABLE_COLUMN = [
   `count_at_time`,
   `loaded_time`,
   `url`,
-  `stage`,
+  // `stage`,
   `create_time`,
 ]
 
@@ -67,6 +68,33 @@ async function insert(recordJson, projectId, createAt) {
   // return insertId
 }
 
+async function getList(projectId, startAt, finishAt, condition = {}) {
+  let recordList = []
+  startAt = moment.unix(startAt).subtract(-2, 'minute').unix()
+  finishAt = moment.unix(finishAt).subtract(-2, 'minute').unix()
+  Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate())
+  Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate())
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
+  DatabaseUtil.paddingTimeList
+  Logger.log('parse\page-engine-onload.js getList tableNameList', tableNameList)
+  console.log('condition', condition)
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .whereBetween('create_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      }).catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    recordList = recordList.concat(rawRecordList)
+  }
+  return recordList
+}
+
 export default {
-  insert
+  insert,
+  getList
 }
