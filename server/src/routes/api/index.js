@@ -12,7 +12,8 @@ import UV from '~/src/routes/api/uv'
 // Performance 本身是内置对象名
 import RPerformance from '~/src/routes/api/performance'
 import VueComponentRender from '~/src/routes/api/vue-component-render'
-import PageEngineRender from '~/src/routes/api/page-engine-render'
+// import PageEngineRender from '~/src/routes/api/page-engine-render'
+import PageEngineOnload from '~/src/routes/api/page-engine-onload'
 export default {
   ...Behavior,
   ...Os,
@@ -27,5 +28,6 @@ export default {
   ...RPerformance,
   ...UV,
   ...VueComponentRender,
-  ...PageEngineRender
+  // ...PageEngineRender,
+  ...PageEngineOnload
 }

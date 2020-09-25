@@ -10,7 +10,7 @@ import _ from 'lodash'
 export default class PageEngineOnloadSummary extends Base {
   static get signature() {
     return `
-     Summary:PageEngineRenderOnload
+    Summary:PageEngineOnloadSummary
      
      {sumaryAtTime:按天统计引擎表单页面加载渲染情况${DATE_FORMAT.DATABASE_BY_DAY}格式}
      `

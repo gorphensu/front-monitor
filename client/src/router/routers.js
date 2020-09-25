@@ -13,7 +13,7 @@ import ErrorPage401 from '@/view/error-page/401.vue'
 import ErrorPage500 from '@/view/error-page/500.vue'
 
 import VueComponentRender from '@/view/vue-component-render'
-import PageEngineRender from '@/view/page-engine'
+import PageEngineOnload from '@/view/page-engine'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -132,23 +132,23 @@ export default [
         component: ViewPerformance,
       },
       {
-        path: 'page-engine-render',
+        path: 'page-engine-onload',
         name: '表单引擎性能',
         meta: {
           icon: 'md-speedometer',
           title: '表单引擎性能',
         },
-        component: PageEngineRender,
+        component: PageEngineOnload,
       },
-      {
-        path: 'vue-component-render',
-        name: 'vue-控件性能',
-        meta: {
-          icon: 'md-speedometer',
-          title: 'vue控件性能',
-        },
-        component: VueComponentRender,
-      },
+      // {
+      //   path: 'vue-component-render',
+      //   name: 'vue-控件性能',
+      //   meta: {
+      //     icon: 'md-speedometer',
+      //     title: 'vue控件性能',
+      //   },
+      //   component: VueComponentRender,
+      // },
       {
         path: 'error-dashboard',
         name: 'error-dashboard',
