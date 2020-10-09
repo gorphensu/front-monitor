@@ -49,7 +49,10 @@ class SummaryPageEngineOnload extends Base {
       }
       Logger.info(`开始处理项目${projectId}(${projectName})的数据`)
       Logger.info(`[${projectId}(${projectName})] 时间范围:${startAtMoment.format(DATE_FORMAT.DIAPLAY_BY_MINUTE) + ':00'}~${endAtMoment.format(DATE_FORMAT.DIAPLAY_BY_MINUTE) + ':59'}`)
-      let res = await MPageEngineOnloadParser.getList(projectId, startAtMoment.unix(), endAtMoment.unix(), {
+      // startAt = moment.unix(startAt).subtract(-2, 'minute').unix()
+      // finishAt = moment.unix(finishAt).subtract(-2, 'minute').unix()
+      // 获取后两分钟，因为执行时间的原因。
+      let res = await MPageEngineOnloadParser.getList(projectId, startAtMoment.clone().subtract(-2, 'minute').unix(), endAtMoment.clone().subtract(-2, 'minute').unix(), {
         // loaded_time 大于3000的数据
         __range_min__loaded_time: 3500
       })

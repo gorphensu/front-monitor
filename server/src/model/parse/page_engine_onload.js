@@ -17,6 +17,7 @@ const TABLE_COLUMN = [
   `count_at_time`,
   `loaded_time`,
   `url`,
+  `browser`,
   // `stage`,
   `create_time`,
 ]
@@ -70,12 +71,11 @@ async function insert(recordJson, projectId, createAt) {
 
 async function getList(projectId, startAt, finishAt, condition = {}) {
   let recordList = []
-  startAt = moment.unix(startAt).subtract(-2, 'minute').unix()
-  finishAt = moment.unix(finishAt).subtract(-2, 'minute').unix()
+  // startAt = moment.unix(startAt).subtract(-2, 'minute').unix()
+  // finishAt = moment.unix(finishAt).subtract(-2, 'minute').unix()
   Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate())
   Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate())
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
-  DatabaseUtil.paddingTimeList
   Logger.log('parse\page-engine-onload.js getList tableNameList', tableNameList)
   console.log('condition', condition)
   for (let tableName of tableNameList) {
@@ -94,7 +94,64 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
   return recordList
 }
 
+async function getListRange(projectId, startAt, finishAt, condition = {}) {
+  let recordList = []
+  Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate())
+  Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate())
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
+  Logger.log('parse\page-engine-onload.js getList tableNameList', tableNameList)
+  console.log('condition', condition)
+  let limit = condition.pagesize || 20
+  let pageindex = condition.pageindex || 1
+  delete condition.pagesize
+  delete condition.pageindex
+  let total = 0
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .whereBetween('create_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .limit(limit)
+      .offset(limit * pageindex - limit)
+      .catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    let rawCount = await Knex(tableName)
+      .count('*')
+      .whereBetween('create_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      }).catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    total += rawCount[0]['count(*)']
+    recordList = recordList.concat(rawRecordList)
+  }
+  return {
+    data: recordList,
+    total: total,
+    pageindex: pageindex,
+    pagesize: limit
+  }
+}
+
 export default {
   insert,
-  getList
+  getList,
+  getListRange
 }

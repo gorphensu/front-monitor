@@ -28,3 +28,19 @@ export const fetchSummaryPageEngineOnloadSummary = (params) => {
     params
   })
 }
+
+export const fetchPageOnloadListByPagecodeAndTenantid = (params) => {
+  return axios.request({
+    url: `project/${getProjectId()}/api/pageengine/pageonloadlist`,
+    method: 'get',
+    params
+  })
+}
+
+export const fetchPageOnloadCtrlList = (params) => {
+  return axios.request({
+    url: `project/${getProjectId()}/api/pageengine/pageonloadctrllist`,
+    method: 'get',
+    params
+  })
+}

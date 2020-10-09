@@ -337,8 +337,8 @@ class TaskManager extends Base {
       let nowByDay = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
       // 解析命令
       let commandList = [
-        'Utils:CleanNginxLog',
-        'Summary:PageEngineOnloadSummary'
+        'Summary:PageEngineOnloadSummary',
+        'Utils:CleanNginxLog'
       ]
       for (let commandItem of commandList) {
         that.dispatchParseCommand(commandItem, nowByDay)

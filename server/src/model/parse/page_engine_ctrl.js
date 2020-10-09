@@ -4,6 +4,7 @@ import Knex from '~/src/library/mysql'
 import Logger from '~/src/library/logger'
 import DatabaseUtil from '~/src/library/utils/modules/database'
 import DATE_FORMAT from '~/src/constants/date_format'
+import ConditionUtils from '~/src/util/conditionUtils'
 
 const BASE_TABLE_NAME = 't_o_page_engine_ctrl'
 
@@ -25,6 +26,7 @@ const TABLE_COLUMN = [
  */
 function getTableName(projectId, createAt) {
   let createAtMoment = moment.unix(createAt)
+  console.log('createAt......', createAt)
   let monthStr = createAtMoment.clone().format('YYYYMM')
   return `${BASE_TABLE_NAME}_${projectId}_${monthStr}`
 }
@@ -64,8 +66,19 @@ async function inserts(projectId, ctrls, itemData) {
   return insertId
 }
 
-async function getList() {
-
+async function getList(projectId, createAt, condition = {}) {
+  let tableName = getTableName(projectId, createAt)
+  delete condition.create_time
+  let rawRecordList = await Knex
+    .select(TABLE_COLUMN)
+    .from(tableName)
+    .where(builder => {
+      ConditionUtils.setCondition(builder, condition)
+    }).catch(e => {
+      Logger.warn('查询失败, 错误原因 =>', e)
+      return []
+    })
+  return rawRecordList
 }
 
 export default {

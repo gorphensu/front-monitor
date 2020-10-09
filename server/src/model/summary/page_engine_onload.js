@@ -119,6 +119,11 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
   Logger.log('summary\page-engine-onload.js getList tableNameList', tableNameList)
   console.log('condition', condition)
+  let limit = condition.pagesize || 20
+  let pageindex = condition.pageindex || 1
+  delete condition.pagesize
+  delete condition.pageindex
+  let total = 0
   for (let tableName of tableNameList) {
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
@@ -127,13 +132,43 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
       .andWhere(builder => {
         ConditionUtils.setCondition(builder, condition)
       })
+      .orderBy('update_time')
+      .limit(limit)
+      .offset(limit * pageindex - limit)
       .catch(e => {
         Logger.warn('查询失败, 错误原因 =>', e)
-        return []
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
       })
+    let rawCount = await Knex(tableName)
+      .count('*')
+      .whereBetween('update_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    total += rawCount[0]['count(*)']
     recordList = recordList.concat(rawRecordList)
   }
-  return recordList
+  // return recordList
+  return {
+    data: recordList,
+    total: total,
+    pageindex: pageindex,
+    pagesize: limit
+  }
 }
 
 export default {
