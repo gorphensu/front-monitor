@@ -39,7 +39,7 @@ export default class PageEngineOnloadSummary extends Base {
       let endAt = countMoment.clone().set('hour', 23).set('minute', 59).set('second', 59).unix()
       let res = await MPageEngineOnload.getList(projectId, startAt, endAt)
       if (res.total) {
-        let tenantDataMap = this.countPageEngineRenerDatas(res)
+        let tenantDataMap = this.countPageEngineRenerDatas(res.data)
         this.save2DB(projectId, Object.values(tenantDataMap))
       } else {
         Logger.info('当前无数据需要统计')
