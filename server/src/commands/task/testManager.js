@@ -208,7 +208,7 @@ class TaskManager extends Base {
       //   // 一小时前
       //   that.dispatchParseCommand(summaryCommand, oneHourAgoByHour, DATE_FORMAT.UNIT.HOUR)
       // }
-
+      that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByMinute, DATE_FORMAT.UNIT.MINUTE)
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
     })
   }

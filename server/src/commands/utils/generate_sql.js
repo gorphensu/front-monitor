@@ -40,6 +40,7 @@ const MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY = 't_r_page_engine_render_summary' // 
 const MULIT_T_O_PAGE_ENGINE_ONLOAD = 't_o_page_engine_onload'
 const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
 const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
+const MULIT_R_O_PAGE_ENGINE_CTRL = 't_r_page_engine_ctrl'
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -501,6 +502,7 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_ONLOAD] = `(
   \`item_id\` varchar(36) NOT NULL DEFAULT '' COMMENT '上报id',
   \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
   \`count_at_time\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计日期, day => YYYY-MM-DD',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
   \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
   \`url\` varchar(255) COMMENT '浏览器地址',
   \`browser\` varchar(255) NOT NULL DEFAULT '' COMMENT '浏览器信息',
@@ -515,9 +517,10 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
   \`engine_item_id\` varchar(36) NOT NULL DEFAULT '' COMMENT '引擎上报id',
   \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '所需耗时',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
   \`component_code\` varchar(100) NOT NULL DEFAULT '' COMMENT '控件code',
   \`component_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
-  \`operation_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`operation_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '操作类型',
   \`stage\` varchar(20) NOT NULL DEFAULT '' COMMENT '收集阶段',
   \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   PRIMARY KEY (\`id\`),
@@ -525,10 +528,24 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page 控件耗时花销';
 `
 
+TABLE_TEMPLATE[MULIT_R_O_PAGE_ENGINE_CTRL] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '所需耗时',
+  \`component_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`operation_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '操作类型',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
+  \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '记录条数',
+  \`count_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计尺度(hour/day)',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按小时，天，记录page 控件耗时花销';`
+
 TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ONLOAD] = `(
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
   \`tenantid\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属租户',
   \`pagecode\` varchar(20) NOT NULL DEFAULT '' COMMENT '表单code',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
   \`url\` varchar(255) COMMENT '浏览器地址',
   \`loaded_time\` int(20) NOT NULL DEFAULT '0' COMMENT '加载耗时',
   \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '记录条数',
@@ -590,6 +607,9 @@ function generate(baseTableName, projectId = '', tableTime = '') {
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
       case MULIT_T_O_PAGE_ENGINE_CTRL:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_R_O_PAGE_ENGINE_CTRL:
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
       default:
@@ -709,7 +729,8 @@ SET foreign_key_checks = 0;
           MULIT_T_R_PAGE_ENGINE_ERROR_SUMMARY,
           MULIT_T_O_PAGE_ENGINE_ONLOAD,
           MULIT_T_R_PAGE_ENGINE_ONLOAD,
-          MULIT_T_O_PAGE_ENGINE_CTRL
+          MULIT_T_O_PAGE_ENGINE_CTRL,
+          MULIT_R_O_PAGE_ENGINE_CTRL
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

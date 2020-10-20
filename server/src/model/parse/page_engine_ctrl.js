@@ -26,7 +26,6 @@ const TABLE_COLUMN = [
  */
 function getTableName(projectId, createAt) {
   let createAtMoment = moment.unix(createAt)
-  console.log('createAt......', createAt)
   let monthStr = createAtMoment.clone().format('YYYYMM')
   return `${BASE_TABLE_NAME}_${projectId}_${monthStr}`
 }

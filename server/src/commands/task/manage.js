@@ -203,6 +203,8 @@ class TaskManager extends Base {
         // 一小时前
         that.dispatchParseCommand(summaryCommand, oneHourAgoByHour, DATE_FORMAT.UNIT.HOUR)
       }
+      // 每十分钟统计一次控件耗时数据
+      that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByMinute, DATE_FORMAT.UNIT.MINUTE)
 
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
     })
@@ -259,7 +261,8 @@ class TaskManager extends Base {
       // 汇总命令
       let summaryCommandList = [
         // 'Summary:PageEngineRender',
-        'Summary:PageEngineOnload'
+        'Summary:PageEngineOnload',
+        'Summary:PageEngineCtrlsSummary'
       ]
       for (let summaryCommand of summaryCommandList) {
         // 当日数据
@@ -338,7 +341,8 @@ class TaskManager extends Base {
       // 解析命令
       let commandList = [
         'Summary:PageEngineOnloadSummary',
-        'Utils:CleanNginxLog'
+        'Utils:CleanNginxLog',
+        'Summary:PageEngineCtrlsSummary'
       ]
       for (let commandItem of commandList) {
         that.dispatchParseCommand(commandItem, nowByDay)

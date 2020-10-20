@@ -45,6 +45,7 @@ const registedCommandList = [
   './commands/summary/page_engine_render_summary',
   './commands/summary/page_engine_onload',
   './commands/summary/page_engine_onload_summary',
+  './commands/summary/page_engine_ctrls',
 
 
 
