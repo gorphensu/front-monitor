@@ -89,6 +89,7 @@ async function updateRecord(projectId, countAt, rawRecordInfo, updateRecordInfo,
     count_size: rawRecordInfo.count_size + (updateRecordInfo.count_size || 1),
     cost_time: averge_cost_time
   }
+  delete updateData.id
   let affectRows = await Knex(tableName)
     .where('component_type', '=', component_type)
     .where('count_type', '=', countType)

@@ -87,61 +87,67 @@ export default class PageEngineCtrlsSummary extends Base {
       }
       Logger.info(`开始处理项目${projectId}(${projectName})的数据 时间:${countDate}, 共${res.length}条`)
       // 拿到数据后，一条一条插入
-      this.save2DB(projectId, res, startAt, countType)
+      this.save2DB(projectId, res, startAt, endAt, countType)
     }
   }
 
-  async addOrReplaceRecord(projectId, recordInfo, countAt, countType) {
-    // return await MPageEngineCtrlsSummary.replaceAndAutoIncrementRecord(projecetId, data, countAt, countType)
+  async addOrReplaceRecord(projectId, recordInfo, startAt, endAt, countType) {
+    // return await MPageEngineCtrlsSummary.replaceAndAutoIncrementRecord(projecetId, data, startAt, countType)
     let component_type = recordInfo.component_type
     let app_version = recordInfo.app_version
     let count_type = countType
     if (countType === DATE_FORMAT.UNIT.MINUTE) {
       // 查询是否存在该数据
-      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, countAt, {
+      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
-        app_version
+        app_version,
+        __range_max__create_time: startAt,
+        __range_max__create_time: endAt
       }, countType)
       // 插入更新
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
         // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, countAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
       } else { // 新建
-        return await MPageEngineCtrlsSummary.insertRecord(projectId, countAt, recordInfo, countType)
+        return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, recordInfo, countType)
       }
     } else if (countType === DATE_FORMAT.UNIT.HOUR) {
       // 查询是否存在该数据
-      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, countAt, {
+      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
+        __range_max__create_time: startAt,
+        __range_max__create_time: endAt,
         app_version
       },  countType)
       // 插入更新
       // 查看下有没有hour数据了
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
         // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, countAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
       } else { // 新建
-        return await MPageEngineCtrlsSummary.insertRecord(projectId, countAt, {
+        return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, {
           ...recordInfo,
           count_type: DATE_FORMAT.UNIT.HOUR
         }, countType)
       }
     } else if (countType === DATE_FORMAT.UNIT.DAY) {
       // 查询是否存在该数据
-      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, countAt, {
+      let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
+        __range_max__create_time: startAt,
+        __range_max__create_time: endAt,
         app_version
       },  countType)
       // 插入更新
       // 查看下有没有hour数据了
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
         // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, countAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
       } else { // 新建
-        return await MPageEngineCtrlsSummary.insertRecord(projectId, countAt, {
+        return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, {
           ...recordInfo,
           count_type: DATE_FORMAT.UNIT.DAY
         }, countType)
@@ -178,14 +184,14 @@ export default class PageEngineCtrlsSummary extends Base {
     return res.data
   }
 
-  async save2DB(projectId, records = [], countAt, countType) {
+  async save2DB(projectId, records = [], startAt, endAt, countType) {
     let totalRecordCount = records.length
     let processRecordCount = 0
     let successSaveCount = 0
 
     for (let record of records) {
       try {
-        let isSuccess = await this.addOrReplaceRecord(projectId, record, countAt, countType)
+        let isSuccess = await this.addOrReplaceRecord(projectId, record, startAt, endAt, countType)
         if (isSuccess) {
           successSaveCount++
         } else {
