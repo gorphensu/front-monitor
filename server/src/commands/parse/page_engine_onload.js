@@ -90,6 +90,9 @@ class PageEngineOnload extends ParseBase {
     console.log('page_engine_render.js processRecordAndCacheInProjectMap record');
     let projectId = _.get(record, ['project_id'], '')
     let app_version = _.get(record, ['common', 'version'])
+    if (app_version === '3.0.0') {
+      app_version = ''
+    }
     let ucid = _.get(record, ['common', 'ucid'])
     let tenantid = _.get(record, ['common', 'tenantid'])
     let url = _.get(record, ['common', 'page_type'])
