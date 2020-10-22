@@ -51,7 +51,7 @@ async function replaceAndAutoIncrementRecord(projectId, recordInfo, visitAt, cou
   }
 }
 
-
+// 开始时间？
 async function insertRecord(projectId, countAt, recordInfo, countType) {
   let tableName = getTableName(projectId, countAt)
   let updateAt = moment().unix()
@@ -89,10 +89,13 @@ async function updateRecord(projectId, countAt, rawRecordInfo, updateRecordInfo,
     count_size: rawRecordInfo.count_size + (updateRecordInfo.count_size || 1),
     cost_time: averge_cost_time
   }
-  delete updateData.id
+  // delete updateData.id
+  // delete updateData.app_version
+  // delete updateData.create_time
   let affectRows = await Knex(tableName)
-    .where('component_type', '=', component_type)
-    .where('count_type', '=', countType)
+    // .where('component_type', '=', component_type)
+    // .where('count_type', '=', countType)
+    .where('id', '=', rawRecordInfo.id)
     .update(updateData)
     .catch(e => {
       Logger.warn(`${tableName} page engine ctrl updateRecord 更新失败, 错误原因`, e)
@@ -106,6 +109,7 @@ async function getRecord(projectId, visitAt, condition = {}, countType) {
   let recordList = await Knex
     .select(TABLE_COLUMN)
     .from(tableName)
+    .orderBy('app_version', 'desc')
     .andWhere(builder => {
       ConditionUtils.setCondition(builder, condition)
       builder.where('count_type', countType)

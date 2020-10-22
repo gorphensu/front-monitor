@@ -16,3 +16,4 @@ alter table `t_r_page_engine_ctrl_1_202009` modify column `count_type` varchar(2
 alter table `t_r_page_engine_ctrl_1_202008` modify column `count_type` varchar(20) not null default '' comment '统计尺度';
 alter table `t_r_page_engine_ctrl_1_202007` modify column `count_type` varchar(20) not null default '' comment '统计尺度';
 
+alter table `t_r_page_engine_render_summary_1_202007` add column `app_version` varcahr(20) not null default '' comment '所属版本';

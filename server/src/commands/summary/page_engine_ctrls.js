@@ -50,8 +50,8 @@ export default class PageEngineCtrlsSummary extends Base {
         countMoment = moment(countAtMoment).add(-1, 'hour').set('minute', 0).set('second', 0)
         startAt = countMoment.unix()
         endAt = countAtMoment.clone().add(-1, 'hours').set('minute', 59).set('second', 59).unix()
-        console.log('startAt', moment.unix(startAt).format())
-        console.log('endAt', moment.unix(endAt).format())
+        console.log('startAt', moment.unix(startAt).format(), startAt)
+        console.log('endAt', moment.unix(endAt).format(), endAt)
         break
       case DATE_FORMAT.UNIT.DAY:
         countMoment = moment(countAtMoment).add(-1, 'day').set('hour', 0).set('minute', 0).set('second', 0)
@@ -102,13 +102,12 @@ export default class PageEngineCtrlsSummary extends Base {
         component_type,
         count_type,
         app_version,
-        __range_max__create_time: startAt,
+        __range_min__create_time: startAt,
         __range_max__create_time: endAt
       }, countType)
       // 插入更新
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
-        // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
       } else { // 新建
         return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, recordInfo, countType)
       }
@@ -117,15 +116,15 @@ export default class PageEngineCtrlsSummary extends Base {
       let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
-        __range_max__create_time: startAt,
+        __range_min__create_time: startAt,
         __range_max__create_time: endAt,
         app_version
-      },  countType)
+      }, countType)
       // 插入更新
       // 查看下有没有hour数据了
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
         // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
       } else { // 新建
         return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, {
           ...recordInfo,
@@ -137,15 +136,15 @@ export default class PageEngineCtrlsSummary extends Base {
       let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
-        __range_max__create_time: startAt,
+        __range_min__create_time: startAt,
         __range_max__create_time: endAt,
         app_version
-      },  countType)
+      }, countType)
       // 插入更新
       // 查看下有没有hour数据了
       if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
         // 需要改变下操作数据
-        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[0], recordInfo, countType)
+        return await MPageEngineCtrlsSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
       } else { // 新建
         return await MPageEngineCtrlsSummary.insertRecord(projectId, startAt, {
           ...recordInfo,
@@ -162,6 +161,21 @@ export default class PageEngineCtrlsSummary extends Base {
       __range_min__create_time: startAt,
       __range_max__create_time: endAt
     })
+    // 提前处理好
+    if (res.length) {
+      let tmpData = {}
+      res.forEach(data => {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+            ...data,
+            count_size: data.count_size || 1
+          }
+        } else {
+          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+        }
+      })
+      return Object.values(tmpData)
+    }
     return res
   }
   // 小时级别的需要从结果表中获取
@@ -172,6 +186,21 @@ export default class PageEngineCtrlsSummary extends Base {
       __range_max__create_time: endAt,
       pagesize: 999999999
     }, DATE_FORMAT.UNIT.MINUTE)
+    // 提前处理
+    if (res.data.length) {
+      let tmpData = {}
+      res.data.forEach(data => {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+            ...data,
+            count_size: data.count_size || 1
+          }
+        } else {
+          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+        }
+      })
+      return Object.values(tmpData)
+    }
     return res.data
   }
 
@@ -181,6 +210,21 @@ export default class PageEngineCtrlsSummary extends Base {
       __range_max__create_time: endAt,
       pagesize: 999999999
     }, DATE_FORMAT.UNIT.HOUR)
+    // 提前处理
+    if (res.data.length) {
+      let tmpData = {}
+      res.data.forEach(data => {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+            ...data,
+            count_size: data.count_size || 1
+          }
+        } else {
+          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+        }
+      })
+      return Object.values(tmpData)
+    }
     return res.data
   }
 

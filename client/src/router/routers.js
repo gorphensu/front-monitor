@@ -14,6 +14,7 @@ import ErrorPage500 from '@/view/error-page/500.vue'
 
 import VueComponentRender from '@/view/vue-component-render'
 import PageEngineOnload from '@/view/page-engine'
+import VueComponent from '@/view/vue-component'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -139,6 +140,15 @@ export default [
           title: '表单引擎性能',
         },
         component: PageEngineOnload,
+      },
+      {
+        path: 'vue-component',
+        name: '控件性能',
+        meta: {
+          icon: 'md-speedometer',
+          title: '控件性能',
+        },
+        component: VueComponent,
       },
       // {
       //   path: 'vue-component-render',
