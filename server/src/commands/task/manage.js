@@ -261,14 +261,15 @@ class TaskManager extends Base {
       // 汇总命令
       let summaryCommandList = [
         // 'Summary:PageEngineRender',
-        'Summary:PageEngineOnload',
-        'Summary:PageEngineCtrlsSummary'
+        'Summary:PageEngineOnload'
+        // 'Summary:PageEngineCtrlsSummary'
       ]
       for (let summaryCommand of summaryCommandList) {
         // 当日数据
         that.dispatchParseCommand(summaryCommand, nowByMinute, DATE_FORMAT.UNIT.MINUTE)
       }
 
+      that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByHour, DATE_FORMAT.UNIT.HOUR)
       that.log('registerTaskRepeatPer1Hour 命令分配完毕')
     })
   }
