@@ -15,7 +15,8 @@ const TABLE_COLUMN = [
   `count_at_time`,
   `create_time`,
   `update_time`,
-  `count_size`
+  `count_size`,
+  `app_version`
 ]
 
 const BASE_TABLE_NAME = 't_r_page_engine_render_summary'
@@ -55,7 +56,8 @@ export default {
         create_time: record.create_time,
         update_time: updateAt,
         count_size: count_size + 1,
-        count_at_time: record.count_at_time
+        count_at_time: record.count_at_time,
+        app_version: record.app_version
       }
       let affectRows = await Knex(tableName)
         .where('tenantid', '=', tenantid)
@@ -76,7 +78,8 @@ export default {
         count_at_time: record.count_at_time,
         count_size: 1,
         update_time: updateAt,
-        create_time: updateAt
+        create_time: updateAt,
+        app_version: record.app_version
       }
       let insertResult = await Knex
         .returning('id')

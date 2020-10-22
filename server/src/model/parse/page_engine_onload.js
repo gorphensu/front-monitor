@@ -20,6 +20,7 @@ const TABLE_COLUMN = [
   `browser`,
   // `stage`,
   `create_time`,
+  `app_version`
 ]
 
 /**
@@ -45,7 +46,8 @@ async function insert(recordJson, projectId, createAt) {
     loaded_time: recordJson.loadedTime,
     url: recordJson.url,
     browser: recordJson.browser,
-    create_time: updateAt
+    create_time: updateAt,
+    app_version: recordJson.app_version
   }
   let insertResult = await Knex
     .returning('id')

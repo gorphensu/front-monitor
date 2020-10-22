@@ -15,7 +15,8 @@ const TABLE_COLUMN = [
   `count_size`,
   `url`,
   `create_time`,
-  `update_time`
+  `update_time`,
+  `app_version`
 ]
 
 const BASE_TABLE_NAME = 't_r_page_engine_onload'
@@ -60,7 +61,8 @@ async function insertRecord(projectId, visitAt, recordInfo) {
     tenantid: recordInfo.tenantid,
     pagecode: recordInfo.pagecode,
     url: recordInfo.url,
-    loaded_time: recordInfo.loaded_time
+    loaded_time: recordInfo.loaded_time,
+    app_version: recordInfo.app_version
   }
   let insertResult = await Knex
     .returning('id')

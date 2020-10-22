@@ -89,6 +89,7 @@ class PageEngineOnload extends ParseBase {
   async processRecordAndCacheInProjectMap(record) {
     console.log('page_engine_render.js processRecordAndCacheInProjectMap record');
     let projectId = _.get(record, ['project_id'], '')
+    let app_version = _.get(record, ['common', 'version'])
     let ucid = _.get(record, ['common', 'ucid'])
     let tenantid = _.get(record, ['common', 'tenantid'])
     let url = _.get(record, ['common', 'page_type'])
@@ -119,6 +120,7 @@ class PageEngineOnload extends ParseBase {
       projectId,
       browser: JSON.stringify(browser),
       count,
+      app_version,
       // index: countIndex,
       finished: false
     }
@@ -248,7 +250,8 @@ class PageEngineOnload extends ParseBase {
           type: ctrlType,
           code: ctrlCode,
           operation: operation.type,
-          costtime: operation.costtime
+          costtime: operation.costtime,
+          app_version: ctrlsMap[ctrlCode].app_version
         })
       })
     }

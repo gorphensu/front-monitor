@@ -48,19 +48,6 @@ export default class PageEngineRenderSummary extends Base {
       }
     }
   }
-  mergeCountDatas(tenantDataMap) {
-    let res = []
-    for (let tenantid in tenantDataMap) {
-      let datas = tenantDataMap[tenantid]
-      // 统计
-      let render_time = 0
-      let loaded_time = 0
-      let count_size = 0
-      datas.forEach(data => {
-
-      })
-    }
-  }
 
   countPageEngineRenerDatas(datas = []) {
     // 需要根据tenantid整合
@@ -77,6 +64,7 @@ export default class PageEngineRenderSummary extends Base {
           count_size: 1,
           update_time: data.update_time,
           create_time: data.update_time,
+          app_version: data.app_version,
           count_at_time: moment(data.update_time * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
         }
         res[tenantid] = tmpData
@@ -91,6 +79,7 @@ export default class PageEngineRenderSummary extends Base {
           render_time,
           loaded_time,
           count_size,
+          app_version: data.app_version,
           count_at_time: oldData.count_at_time || moment(data.update_time * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
         }
         res[tenantid] = tmpData

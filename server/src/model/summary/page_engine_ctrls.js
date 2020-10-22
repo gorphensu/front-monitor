@@ -16,7 +16,8 @@ const TABLE_COLUMN = [
   `count_size`,
   `count_type`,
   `create_time`,
-  `update_time`
+  `update_time`,
+  `app_version`
 ]
 
 const BASE_TABLE_NAME = 't_r_page_engine_ctrl'
@@ -81,7 +82,6 @@ async function updateRecord(projectId, countAt, rawRecordInfo, updateRecordInfo,
   let tableName = getTableName(projectId, countAt)
 
   let component_type = rawRecordInfo.component_type
-  let app_version = rawRecordInfo.app_version
   let averge_cost_time = (rawRecordInfo.cost_time * rawRecordInfo.count_size + updateRecordInfo.cost_time * (updateRecordInfo.count_size || 1)) / (rawRecordInfo.count_size + (updateRecordInfo.count_size || 1))
   let updateData = {
     ...rawRecordInfo,

@@ -16,7 +16,8 @@ const TABLE_COLUMN = [
   `component_type`,
   `operation_type`,
   `stage`,
-  `create_time`
+  `create_time`,
+  `app_version`
 ]
 
 /**
@@ -37,7 +38,8 @@ async function inserts(projectId, ctrls, itemData) {
   let data = {
     engine_item_id: itemData.itemId,
     create_time: createAt,
-    stage: itemData.stage
+    stage: itemData.stage,
+    app_version: itemData.app_version
   }
   let datas = []
   ctrls.forEach(ctrl => {
