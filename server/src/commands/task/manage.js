@@ -342,12 +342,13 @@ class TaskManager extends Base {
       // 解析命令
       let commandList = [
         'Summary:PageEngineOnloadSummary',
-        'Utils:CleanNginxLog',
-        'Summary:PageEngineCtrlsSummary'
+        'Utils:CleanNginxLog'
+        // 'Summary:PageEngineCtrlsSummary'
       ]
       for (let commandItem of commandList) {
         that.dispatchParseCommand(commandItem, nowByDay)
       }
+      that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByDay, DATE_FORMAT.UNIT.DAY)
       that.log('registerTaskRepeatPer1Day 命令分配完毕')
     })
   }
