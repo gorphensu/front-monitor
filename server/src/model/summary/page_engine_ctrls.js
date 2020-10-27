@@ -130,6 +130,8 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
   let recordList = []
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
   console.log('condition', condition)
+  console.log(startAt, finishAt)
+  console.log('countType', countType)
   let limit = condition.pagesize || 20
   let pageindex = condition.pageindex || 1
   delete condition.pagesize
@@ -172,8 +174,10 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
           pagesize: 0
         }
       })
-    total += rawCount[0]['count(*)']
-    recordList = recordList.concat(rawRecordList)
+    if(rawCount[0]) {
+      total += rawCount[0]['count(*)']
+      recordList = recordList.concat(rawRecordList)
+    }
   }
   // return recordList
   return {

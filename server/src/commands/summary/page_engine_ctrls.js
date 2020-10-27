@@ -95,6 +95,7 @@ export default class PageEngineCtrlsSummary extends Base {
     // return await MPageEngineCtrlsSummary.replaceAndAutoIncrementRecord(projecetId, data, startAt, countType)
     let component_type = recordInfo.component_type
     let app_version = recordInfo.app_version
+    let operation_type = recordInfo.operation_type
     let count_type = countType
     if (countType === DATE_FORMAT.UNIT.MINUTE) {
       // 查询是否存在该数据
@@ -102,6 +103,7 @@ export default class PageEngineCtrlsSummary extends Base {
         component_type,
         count_type,
         app_version,
+        operation_type,
         __range_min__create_time: startAt,
         __range_max__create_time: endAt
       }, countType)
@@ -116,6 +118,7 @@ export default class PageEngineCtrlsSummary extends Base {
       let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
+        operation_type,
         __range_min__create_time: startAt,
         __range_max__create_time: endAt,
         app_version
@@ -136,6 +139,7 @@ export default class PageEngineCtrlsSummary extends Base {
       let rawRecordList = await MPageEngineCtrlsSummary.getRecord(projectId, startAt, {
         component_type,
         count_type,
+        operation_type,
         __range_min__create_time: startAt,
         __range_max__create_time: endAt,
         app_version
