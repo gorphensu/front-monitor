@@ -52,7 +52,7 @@ async function replaceAndAutoIncrementRecord(recordInfo, visitAt) {
 
 async function insertRecord(projectId, visitAt, recordInfo) {
   let tableName = getTableName(projectId, visitAt)
-  let updateAt = moment().unix()
+  let updateAt = moment().unix() // 服务器时间
 
   let data = {
     count_size: 1,
@@ -81,11 +81,11 @@ async function updateRecord(projectId, visitAt, rawRecordInfo, updateRecordInfo)
 
   let pagecode = rawRecordInfo.pagecode
   let tenantid = rawRecordInfo.tenantid
-  let updateAt = moment().unix()
+  // let updateAt = moment().unix()
   let averge_loaded_time = (rawRecordInfo.loaded_time * rawRecordInfo.count_size + updateRecordInfo.loaded_time) / (rawRecordInfo.count_size + 1)
   let updateData = {
     ...rawRecordInfo,
-    update_time: updateAt,
+    update_time: visitAt,
     count_size: rawRecordInfo.count_size + 1,
     loaded_time: averge_loaded_time
   }

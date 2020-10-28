@@ -28,7 +28,7 @@ function getTableName(projectId, countTimeAt) {
 }
 
 export default {
-  async updateRecord(projectId, record) {
+  async updateRecord(projectId, record, countAt) {
     let { tenantid, count_at_time } = record
 
     let tableName = getTableName(projectId, moment(count_at_time).unix())
@@ -53,8 +53,8 @@ export default {
         tenantid: record.tenantid,
         render_time: 0,
         loaded_time: loadedTime,
-        create_time: record.create_time,
-        update_time: updateAt,
+        create_time: record.create_time || countAt,
+        update_time: countAt,
         count_size: count_size + 1,
         count_at_time: record.count_at_time,
         app_version: record.app_version
@@ -77,8 +77,8 @@ export default {
         loaded_time: record.loaded_time,
         count_at_time: record.count_at_time,
         count_size: 1,
-        update_time: updateAt,
-        create_time: updateAt,
+        update_time: countAt,
+        create_time: countAt, // 服务器时间
         app_version: record.app_version
       }
       let insertResult = await Knex

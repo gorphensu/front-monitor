@@ -39,8 +39,8 @@ export default class PageEngineOnloadSummary extends Base {
       let endAt = countMoment.clone().set('hour', 23).set('minute', 59).set('second', 59).unix()
       let res = await MPageEngineOnload.getList(projectId, startAt, endAt)
       if (res.total) {
-        let tenantDataMap = this.countPageEngineRenerDatas(res.data)
-        this.save2DB(projectId, Object.values(tenantDataMap))
+        let tenantDataMap = this.countPageEngineRenerDatas(res.data, endAt)
+        this.save2DB(projectId, Object.values(tenantDataMap), endAt)
       } else {
         Logger.info('当前无数据需要统计')
         return
@@ -48,7 +48,7 @@ export default class PageEngineOnloadSummary extends Base {
     }
   }
   
-  countPageEngineRenerDatas(datas = []) {
+  countPageEngineRenerDatas(datas = [], countAt) {
     // 需要根据tenantid整合
     let res = {}
     datas.forEach(data => {
@@ -60,9 +60,9 @@ export default class PageEngineOnloadSummary extends Base {
           render_time: 0,
           loaded_time: data.loaded_time,
           count_size: 1,
-          update_time: data.update_time,
-          create_time: data.update_time,
-          count_at_time: moment(data.update_time * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
+          update_time: countAt,
+          create_time: countAt,
+          count_at_time: moment(countAt * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
         }
         res[tenantid] = tmpData
       } else {
@@ -76,7 +76,7 @@ export default class PageEngineOnloadSummary extends Base {
           render_time: 0,
           loaded_time,
           count_size,
-          count_at_time: oldData.count_at_time || moment(data.update_time * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
+          count_at_time: oldData.count_at_time || moment(countAt * 1000).format(DATE_FORMAT.DISPLAY_BY_DAY)
         }
         res[tenantid] = tmpData
       }
@@ -85,18 +85,18 @@ export default class PageEngineOnloadSummary extends Base {
   }
 
 
-  async addOrReplaceRecord(projecetId, data) {
-    return await MPageEngineOnloadSummary.updateRecord(projecetId, data)
+  async addOrReplaceRecord(projecetId, data, countAt) {
+    return await MPageEngineOnloadSummary.updateRecord(projecetId, data, countAt)
   }
 
-  async save2DB(projectId, records = []) {
+  async save2DB(projectId, records = [], countAt) {
     let totalRecordCount = records.length
     let processRecordCount = 0
     let successSaveCount = 0
 
     for (let record of records) {
       try {
-        let isSuccess = await this.addOrReplaceRecord(projectId, record)
+        let isSuccess = await this.addOrReplaceRecord(projectId, record, countAt)
         if (isSuccess) {
           successSaveCount++
         } else {

@@ -104,15 +104,21 @@ class PageEngineOnload extends ParseBase {
     let detail = _.get(record, ['detail', 'detail'], '')
     let count = _.get(record, ['detail', 'count'])
     let countIndex = _.get(record, ['detail', 'index'])
+    // 客户提交的时间
     let recordAt = _.get(record, ['time'], 0)
     let countAtTime = moment.unix(recordAt).format(COUNT_BY_MINUTE_DATE_FORMAT)
     let countAtTimeStamp = recordAt
+    // let createAtTime = this.startAtMoment.format(COUNT_BY_MINUTE_DATE_FORMAT)
+    // let createAtTimeStamp = Number(this.startAtMoment)
+    // 因为是延迟两分钟执行了
+    let createAtTimeStamp = Number(moment().subtract(2, 'minutes'))
+    let createAtTime = moment().subtract(2, 'minutes').format(COUNT_BY_MINUTE_DATE_FORMAT)
     let itemDataAtMap = new Map()
     let itemDataAtTypeList = new Array(2) // ['onload', 'update']
     let vueRecord = {
       itemId,
-      countAtTime,
-      countAtTimeStamp,
+      countAtTime: createAtTime,
+      countAtTimeStamp: createAtTimeStamp,
       ucid,
       tenantid,
       loadedTime,

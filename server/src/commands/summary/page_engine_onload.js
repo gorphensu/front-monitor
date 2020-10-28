@@ -28,7 +28,7 @@ class SummaryPageEngineOnload extends Base {
    */
   async execute(args, options) {
     Logger.info('开始执行 Summary:PageEngineOnload')
-    // 按小时统计, 每天都跑
+    // 按小时统计, 每天都跑 2分1秒
     let { sumaryAtTime } = args
     if (this.isArgumentsLegal(args, options) === false) {
       this.warn('参数不正确, 自动退出')
@@ -64,8 +64,8 @@ class SummaryPageEngineOnload extends Base {
       res = this.mergeRecordData(res, {
         project_id: projectId
       })
-      // 保存到每月统计当中
-      this.save2DB(res, visitAt)
+      // 保存到每月统计当中 开始的统计时间。x时
+      this.save2DB(res, startAtMoment.unix())
     }
   }
 

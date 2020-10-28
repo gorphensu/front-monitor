@@ -36,7 +36,7 @@ function getTableName(projectId, createAt) {
 
 async function insert(recordJson, projectId, createAt) {
   let tableName = getTableName(projectId, createAt)
-  let updateAt = moment().unix()
+  let updateAt = moment().unix() // 服务器时间
   let data = {
     tenantid: recordJson.tenantid,
     ucid: recordJson.ucid,
@@ -46,7 +46,7 @@ async function insert(recordJson, projectId, createAt) {
     loaded_time: recordJson.loadedTime,
     url: recordJson.url,
     browser: recordJson.browser,
-    create_time: updateAt,
+    create_time: createAt || updateAt, // 服务器时间，任务时间
     app_version: recordJson.app_version
   }
   let insertResult = await Knex
