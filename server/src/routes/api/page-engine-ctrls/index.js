@@ -16,6 +16,8 @@ const getPageEngineCtrlsList = RouterConfigBuilder.routerConfigBuilder(
     let endAt = _.get(request, ['et'], 0)
 
     let type = _.get(request, ['type'], 'day')
+    let pagesize = Number(_.get(request, ['pagesize'], 0))
+    let pageindex = _.get(request, ['pageindex'], '')
     // 如果没有设置开始结束时间？
     const currentStamp = moment().unix()
     if (startAt) {
@@ -30,6 +32,8 @@ const getPageEngineCtrlsList = RouterConfigBuilder.routerConfigBuilder(
     }
 
     let condition = {
+      pagesize,
+      pageindex
     }
 
     let list = await MSummaryPageEngineCtrlsSummary.getList(projectId, startAt, endAt, condition, type)

@@ -155,7 +155,7 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
           data: [],
           total: 0,
           pageindex: 1,
-          pagesize: 0
+          pagesize: limit
         }
       })
     let rawCount = await Knex(tableName)

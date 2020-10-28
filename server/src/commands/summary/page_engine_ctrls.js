@@ -169,13 +169,13 @@ export default class PageEngineCtrlsSummary extends Base {
     if (res.length) {
       let tmpData = {}
       res.forEach(data => {
-        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
-          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`] = {
             ...data,
             count_size: data.count_size || 1
           }
         } else {
-          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
       return Object.values(tmpData)
@@ -194,13 +194,13 @@ export default class PageEngineCtrlsSummary extends Base {
     if (res.data.length) {
       let tmpData = {}
       res.data.forEach(data => {
-        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
-          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`] = {
             ...data,
             count_size: data.count_size || 1
           }
         } else {
-          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
       return Object.values(tmpData)
@@ -218,13 +218,13 @@ export default class PageEngineCtrlsSummary extends Base {
     if (res.data.length) {
       let tmpData = {}
       res.data.forEach(data => {
-        if (!tmpData[`${data['component_type']}__${data['app_version']}`]) {
-          tmpData[`${data['component_type']}__${data['app_version']}`] = {
+        if (!tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`]) {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`] = {
             ...data,
             count_size: data.count_size || 1
           }
         } else {
-          tmpData[`${data['component_type']}__${data['app_version']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}`].count_size + (data.count_size || 1)
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
       return Object.values(tmpData)
