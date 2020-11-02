@@ -26,7 +26,7 @@ const TABLE_COLUMN = [
 /**
  * 获取表名
  * @param {*} projectId
- * @param {number} createAt
+ * @param {number} createAt unix
  */
 function getTableName(projectId, createAt) {
   let createAtMoment = moment.unix(createAt)

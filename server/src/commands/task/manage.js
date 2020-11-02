@@ -141,7 +141,7 @@ class TaskManager extends Base {
       that.log(`[按分钟] 上报vue控件渲染时间`)
       // that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
       // that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
-      // 前两分钟的一分之内的数据
+      // 前两分钟的一分之内的数据,前一分钟的
       that.dispatchParseCommand('Parse:PageEngineOnload', twoMinuteAgoByMinute, oneMinuteAgoByMinute)
 
       that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)
@@ -209,6 +209,22 @@ class TaskManager extends Base {
 
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
     })
+
+    // 每10分钟的50秒启动
+    schedule.scheduleJob('50 */10 * * * *', function() {
+      that.log('registerTaskRepeatPer10Minute 开始执行')
+      // 由于时间是50s触发的，需要讲时间设置到0s -10m-0
+      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let startTime = moment().subtract(10, 'minutes').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let endTime = nowByMinute
+      that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'minute', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
+    })
   }
 
   /**
@@ -248,6 +264,16 @@ class TaskManager extends Base {
         // 当日数据
         that.dispatchParseCommand(summaryCommand, nowByDay, DATE_FORMAT.UNIT.DAY)
       }
+      let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      let startTime = moment().subtract(1, 'hours').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      let endTime = nowByHour
+      that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'hour', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
 
       that.log('registerTaskRepeatPer1Hour 命令分配完毕')
     })
@@ -350,6 +376,17 @@ class TaskManager extends Base {
         that.dispatchParseCommand(commandItem, nowByDay)
       }
       that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByDay, DATE_FORMAT.UNIT.DAY)
+
+      let startTime = moment().subtract(1, 'days').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
+      let endTime = nowByDay
+      that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'day', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
+
       that.log('registerTaskRepeatPer1Day 命令分配完毕')
     })
   }

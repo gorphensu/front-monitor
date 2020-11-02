@@ -113,12 +113,14 @@ class PageEngineOnload extends ParseBase {
     // 因为是延迟两分钟执行了
     let createAtTimeStamp = Number(moment().subtract(2, 'minutes'))
     let createAtTime = moment().subtract(2, 'minutes').format(COUNT_BY_MINUTE_DATE_FORMAT)
+    let createAt = moment().subtract(2, 'minutes').unix()
     let itemDataAtMap = new Map()
     let itemDataAtTypeList = new Array(2) // ['onload', 'update']
     let vueRecord = {
       itemId,
       countAtTime: createAtTime,
       countAtTimeStamp: createAtTimeStamp,
+      createAt,
       ucid,
       tenantid,
       loadedTime,
@@ -213,7 +215,7 @@ class PageEngineOnload extends ParseBase {
       for (let [itemId, itemDataAtTypeList] of itemDataAtMap) {
         let [onloadItem, updateItem] = itemDataAtTypeList
         if (onloadItem && onloadItem.finished) {
-          let isSuccess = await MPageEngineOnload.insert(onloadItem, projectId, onloadItem.countAtTimeStamp)
+          let isSuccess = await MPageEngineOnload.insert(onloadItem, projectId, onloadItem.createAt)
           processRecordCount++
           if (isSuccess) {
             successSaveCount++

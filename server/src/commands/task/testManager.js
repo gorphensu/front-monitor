@@ -148,12 +148,12 @@ class TaskManager extends Base {
       // that.dispatchParseCommand('Summary:Error', fiveMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
       // that.dispatchParseCommand('Summary:Error', tenMinuteAgoByMinute, DATE_FORMAT.UNIT.MINUTE)
 
-      let commandList = [
-        'Summary:PageEngineRenderSummary'
-      ]
-      for (let commandItem of commandList) {
-        that.execCommand(commandItem)
-      }
+      // let commandList = [
+      //   'Summary:PageEngineRenderSummary'
+      // ]
+      // for (let commandItem of commandList) {
+      //   that.execCommand(commandItem)
+      // }
 
       that.log('registerTaskRepeatPer1Minute 命令分配完毕')
     })
@@ -168,12 +168,12 @@ class TaskManager extends Base {
     schedule.scheduleJob('15 */10 * * * *', function () {
       that.log('registerTaskRepeatPer10Minute 开始执行')
 
-      // let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
-      // let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let nowByHour = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
-      // let oneHourAgoByHour = moment().subtract(1, DATE_FORMAT.UNIT.HOUR).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
+      let oneHourAgoByHour = moment().subtract(1, DATE_FORMAT.UNIT.HOUR).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
 
-      // let fifteenMinuteAgoByminute = moment().subtract(15, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let fifteenMinuteAgoByminute = moment().subtract(15, DATE_FORMAT.UNIT.MINUTE).format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
 
       // // 周期性执行命令
       // let intervalCommandList = [
@@ -210,6 +210,22 @@ class TaskManager extends Base {
       // }
       that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByMinute, DATE_FORMAT.UNIT.MINUTE)
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
+    })
+
+    // 每10分钟的50秒启动
+    schedule.scheduleJob('50 */10 * * * *', function () {
+      that.log('registerTaskRepeatPer10Minute 开始执行')
+      // 由于时间是50s触发的，需要讲时间设置到0s -10m-0
+      let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let startTime = moment().subtract(10, 'minutes').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
+      let endTime = nowByMinute
+      that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'minute', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
     })
   }
 

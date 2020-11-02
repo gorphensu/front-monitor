@@ -75,21 +75,22 @@ export default {
       let columns = [{
         title: 'component_type',
         key: 'component_type',
-        width: 200,
+        width: 100,
         sort: 1
       }]
       data.versions.forEach(version => {
         let column = {
           title: version || '_',
           // key: version || ['_'],
-          width: 400,
+          // width: 400,
           children: [],
           sort: !version ? 2 : ''
         }
         data.operations.forEach(operation => {
           column.children.push({
             title: operation,
-            key: `${version || '_'}:${operation}`
+            key: `${version || '_'}:${operation}`,
+            width: 80
           })
         })
         columns.push(column)
