@@ -75,8 +75,8 @@ async function getList(projectId, startAt, finishAt, condition = {}) {
   let recordList = []
   // startAt = moment.unix(startAt).subtract(-2, 'minute').unix()
   // finishAt = moment.unix(finishAt).subtract(-2, 'minute').unix()
-  Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate())
-  Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate())
+  Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate(), startAt)
+  Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate(), finishAt)
   let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
   Logger.log('parse\page-engine-onload.js getList tableNameList', tableNameList)
   console.log('condition', condition)

@@ -47,6 +47,7 @@ const registedCommandList = [
   './commands/summary/page_engine_onload_summary',
   './commands/summary/page_engine_ctrls',
 
+  './commands/summary/page_engine_onload_count',
 
 
   // 监控

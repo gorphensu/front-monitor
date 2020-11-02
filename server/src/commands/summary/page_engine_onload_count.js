@@ -2,10 +2,10 @@ import Base from './base'
 import moment from 'moment'
 import Logger from '~/src/library/logger'
 import MPageEngineOnloadParse from '~/src/model/parse/page_engine_onload'
+import MPageEngineOnloadCount from '~/src/model/summary/page_engine_onload_count'
 import MProject from '~/src/model/project/project'
 import DATE_FORMAT from '~/src/constants/date_format'
 import _ from 'lodash'
-import URL from 'url'
 
 export default class PageEngineOnloadCount extends Base {
   static get signature() {
@@ -50,7 +50,7 @@ export default class PageEngineOnloadCount extends Base {
     console.log(startMoment, endMoment)
 
     let startAt = startMoment.unix()
-    let endAt = endMoment.unix()
+    let endAt = endMoment.unix() - 1
 
     let rowProjectList = await MProject.getList()
     for (let rawProject of rowProjectList) {
@@ -65,51 +65,75 @@ export default class PageEngineOnloadCount extends Base {
       switch (countType) {
         case DATE_FORMAT.UNIT.MINUTE:
           res = await MPageEngineOnloadParse.getList(projectId, startAt, endAt)
-          res = this.preCountMinuteData(res)
+          res = this.preCountData(res, countType)
           break
         case DATE_FORMAT.UNIT.HOUR:
+          // 从结果表里面找区间数据，然后合并
+          res = await MPageEngineOnloadCount.getList(projectId, startAt, endAt, {
+            __range_min__create_time: startAt,
+            __range_max__create_time: endAt,
+          })
+          res = this.preCountData(res, countType)
           break
         case DATE_FORMAT.UNIT.DAY:
           break
         default:
           break;
       }
-      this.save2DB(projectId, res, countType)
+      this.save2DB(projectId, res, countType, startAt, endAt)
     }
   }
 
-  save2DB(projectId, records, countType) {
+  async save2DB(projectId, records, countType, startAt, endAt) {
     let totalRecordCount = records.length
     let processRecordCount = 0
     let successSaveCount = 0
 
     for (let record of records) {
-
+      try {
+        let isSuccess = await MPageEngineOnloadCount.updateOrInsert(projectId, record, startAt, endAt, true)
+        if (isSuccess) {
+          successSaveCount++
+        } else {
+          Logger.info('summary page_engine_onload_count 插入失败')
+        }
+        processRecordCount++
+      } catch (e) {
+        Logger.info('summary page_engine_onload_count 插入失败', e)
+        processRecordCount++
+      }
     }
+    this.reportProcess(processRecordCount, successSaveCount, totalRecordCount)
   }
 
   // 根据源数据，将tenantid pagecode url app_version分组
-  preCountMinuteData(records) {
-    let dataMap = new Map()
+  preCountData(records, countType) {
+    let dataMap = {}
     records.forEach(record => {
       let url = record.url
-      let urlObj = URL.parse(url)
-      url = `${urlObj.host}`
+      let urlObj = new URL(url)
+      url = `${urlObj.origin}`
       let key = `${record.tenantid}:${record.pagecode}:${url}:${record.app_version}`
-      let countedData = dataMap.get(key)
+      let countedData = dataMap[key]
       if (!countedData) {
         countedData = {
-          count_size: 1,
+          count_size: record.count_size || 1,
           loaded_time: record.loaded_time,
           tenantid: record.tenantid,
           pagecode: record.pagecode,
           app_version: record.app_version,
-          url
+          url,
+          create_time: record.create_time,
+          count_type: countType
         }
       }
       countedData.loaded_time = (countedData.loaded_time * countedData.count_size + record.loaded_time) / (countedData.count_size + 1)
-      countedData.count_size = countedData.count_size + 1
+      if(countType === 'minute') {
+        countedData.count_size = countedData.count_size + 1
+      }
+      countedData.update_time = record.create_time
+      dataMap[key] = countedData
     })
-    return dataMap.values()
+    return Object.values(dataMap)
   }
 }
