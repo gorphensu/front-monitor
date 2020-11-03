@@ -68,14 +68,14 @@ export default class PageEngineOnloadCount extends Base {
           res = this.preCountData(res, countType)
           break
         case DATE_FORMAT.UNIT.HOUR:
+        case DATE_FORMAT.UNIT.DAY:
           // 从结果表里面找区间数据，然后合并
           res = await MPageEngineOnloadCount.getList(projectId, startAt, endAt, {
             __range_min__create_time: startAt,
             __range_max__create_time: endAt,
+            count_type: countType === DATE_FORMAT.UNIT.HOUR ? 'minute' : 'hour'
           })
           res = this.preCountData(res, countType)
-          break
-        case DATE_FORMAT.UNIT.DAY:
           break
         default:
           break;
@@ -91,7 +91,8 @@ export default class PageEngineOnloadCount extends Base {
 
     for (let record of records) {
       try {
-        let isSuccess = await MPageEngineOnloadCount.updateOrInsert(projectId, record, startAt, endAt, true)
+        debugger
+        let isSuccess = await MPageEngineOnloadCount.updateOrInsert(projectId, record, startAt, endAt, countType !== 'minute' ? true : false)
         if (isSuccess) {
           successSaveCount++
         } else {
@@ -128,7 +129,7 @@ export default class PageEngineOnloadCount extends Base {
         }
       }
       countedData.loaded_time = (countedData.loaded_time * countedData.count_size + record.loaded_time) / (countedData.count_size + 1)
-      if(countType === 'minute') {
+      if (countType === 'minute') {
         countedData.count_size = countedData.count_size + 1
       }
       countedData.update_time = record.create_time
