@@ -137,10 +137,85 @@ async function getList(projectId, startAt, endAt, condition = {}) {
   return recordList
 }
 
+async function getListRange(projectId, startAt, endAt, condition = {}) {
+  Logger.log('parse\page-engine-onload-count.js getListRange start', moment.unix(startAt).toDate(), startAt)
+  Logger.log('parse\page-engine-onload-count.js getListRange finish', moment.unix(endAt).toDate(), endAt)
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, endAt, getTableName)
+  Logger.log('parse\page-engine-onload-count.js getListRange tableNameList', tableNameList)
+  console.log('condition', condition)
+  let limit = condition.pagesize || 20
+  let pageindex = condition.pageindex || 1
+
+  delete condition.pagesize
+  delete condition.pageindex
+
+  let recordList = []
+  let total = 0
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .where(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .orderBy('create_time')
+      .limit(limit)
+      .offset(limit * pageindex - limit)
+      .catch(e => {
+        Logger.warn('summary page_engine_onlod_count getListRange查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: limit
+        }
+      })
+    let rawCount = await Knex(tableName)
+      .count('*')
+      .where(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .catch(e => {
+        Logger.warn('summary page_engine_onlod_count getListRange查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    if (rawCount[0]) {
+      total += rawCount[0]['count(*)']
+      recordList = recordList.concat(rawRecordList)
+    }
+    // 这里需要合并相同表单版本以及租户站点一样 的数
+    let mergeRecordMap = {}
+    recordList.forEach(record => {
+      let key = `${record.tenantid}_${record.pagecode}_${record.url}_${record.app_version}`
+      if (!mergeRecordMap[key]) {
+        mergeRecordMap[key] = record
+      } else {
+        mergeRecordMap[key].loaded_time = (mergeRecordMap[key].count_size * mergeRecordMap[key].loaded_time + record.count_size * record.loaded_time) / (mergeRecordMap[key].count_size + record.count_size)
+        mergeRecordMap[key].count_size = mergeRecordMap[key].count_size + record.count_size
+      }
+    })
+    return {
+      data: Object.keys(mergeRecordMap).map(key => {
+        return mergeRecordMap[key]
+      }),
+      total: total,
+      pageindex: pageindex,
+      pagesize: limit
+    }
+  }
+  return recordList
+}
+
 export default {
   insert,
   update,
   updateOrInsert,
   getRecord,
-  getList
+  getList,
+  getListRange
 }

@@ -91,7 +91,6 @@ export default class PageEngineOnloadCount extends Base {
 
     for (let record of records) {
       try {
-        debugger
         let isSuccess = await MPageEngineOnloadCount.updateOrInsert(projectId, record, startAt, endAt, countType !== 'minute' ? true : false)
         if (isSuccess) {
           successSaveCount++

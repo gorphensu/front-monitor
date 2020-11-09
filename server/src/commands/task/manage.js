@@ -141,7 +141,7 @@ class TaskManager extends Base {
       that.log(`[按分钟] 上报vue控件渲染时间`)
       // that.dispatchParseCommand('Parse:VueComponentRender ', twoMinuteAgoByMinute, nowByMinute)
       // that.dispatchParseCommand('Parse:PageEngineRender', twoMinuteAgoByMinute, nowByMinute)
-      // 前两分钟的一分之内的数据,前一分钟的
+      // 前两分钟的一分之内的数据,前一分钟的数据
       that.dispatchParseCommand('Parse:PageEngineOnload', twoMinuteAgoByMinute, oneMinuteAgoByMinute)
 
       that.log(`[按分钟] 每分钟运行Summary:Error, 分别统计前2,3,4,5,10分钟内的数据`)

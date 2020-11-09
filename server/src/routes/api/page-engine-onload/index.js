@@ -145,6 +145,15 @@ const getPageEngineOnloadDeailList = RouterConfigBuilder.routerConfigBuilder(
     let pageindex = _.get(request, ['pageindex'], 1)
     let pagesize = _.get(request, ['pagesize'], 20)
 
+    let app_version = _.get(request, ['app_version'], '')
+
+    let url = _.get(request, ['url'], '')
+    // if (url) {
+    //   try {
+    //     url = new URL(url).origin
+    //   } catch (e) { }
+    // }
+
     // 如果没有设置开始结束时间？
     const currentStamp = moment().unix()
     if (startAt) {
@@ -158,11 +167,14 @@ const getPageEngineOnloadDeailList = RouterConfigBuilder.routerConfigBuilder(
       endAt = currentStamp
     }
 
-    let resData = await MPageEngineOnload.getListRange(projectId, startAt, endAt, {
+    let resData = await MPageEngineOnload.getListRangeDetail(projectId, startAt, endAt, {
       tenantid,
       pagecode,
       pageindex,
-      pagesize
+      pagesize,
+      app_version,
+      // url,
+      __like__url: `${url}%`
     })
     // res.send('hello')
     // 做统计计算

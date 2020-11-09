@@ -8,6 +8,8 @@ import ConditionUtils from '~/src/util/conditionUtils'
 
 const BASE_TABLE_NAME = 't_o_page_engine_onload'
 
+const BASE_CTRLS_TABLE_NAME = 't_o_page_engine_ctrl'
+
 const TABLE_COLUMN = [
   `id`,
   `tenantid`,
@@ -109,6 +111,7 @@ async function getListRange(projectId, startAt, finishAt, condition = {}) {
   delete condition.pageindex
   let total = 0
   for (let tableName of tableNameList) {
+    let ctrlTableName = tableName.replace(BASE_TABLE_NAME, BASE_CTRLS_TABLE_NAME)
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
       .from(tableName)
@@ -152,8 +155,68 @@ async function getListRange(projectId, startAt, finishAt, condition = {}) {
   }
 }
 
+async function getListRangeDetail(projectId, startAt, finishAt, condition = {}) {
+  let recordList = []
+  Logger.log('parse\page-engine-onload.js getList start', moment.unix(startAt).toDate())
+  Logger.log('parse\page-engine-onload.js getList finish', moment.unix(finishAt).toDate())
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, finishAt, getTableName)
+  Logger.log('parse\page-engine-onload.js getList tableNameList', tableNameList)
+  console.log('condition', condition)
+  let limit = condition.pagesize || 20
+  let pageindex = condition.pageindex || 1
+  delete condition.pagesize
+  delete condition.pageindex
+  let total = 0
+  for (let tableName of tableNameList) {
+    let ctrlTableName = tableName.replace(BASE_TABLE_NAME, BASE_CTRLS_TABLE_NAME)
+    console.log('ctrlTableName', ctrlTableName)
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      // .join(ctrlTableName, `${tableName}.item_id`, '=', `${ctrlTableName}.engine_item_id`)
+      .whereBetween('create_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .limit(limit)
+      .offset(limit * pageindex - limit)
+      .catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    let rawCount = await Knex(tableName)
+      .count('*')
+      .whereBetween('create_time', [startAt, finishAt])
+      .andWhere(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      }).catch(e => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return {
+          data: [],
+          total: 0,
+          pageindex: 1,
+          pagesize: 0
+        }
+      })
+    total += rawCount[0]['count(*)']
+    recordList = recordList.concat(rawRecordList)
+  }
+  return {
+    data: recordList,
+    total: total,
+    pageindex: pageindex,
+    pagesize: limit
+  }
+}
+
 export default {
   insert,
   getList,
-  getListRange
+  getListRange,
+  getListRangeDetail
 }

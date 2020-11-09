@@ -34,6 +34,7 @@ function getTableName(projectId, createAt) {
 async function inserts(projectId, ctrls, itemData) {
   let createAt = itemData.countAtTimeStamp
   let tableName = getTableName(projectId, createAt)
+  Logger.log('page engine ctrl inserts tableName', tableName)
   let updateAt = moment().unix()
   let data = {
     engine_item_id: itemData.itemId,
@@ -41,6 +42,7 @@ async function inserts(projectId, ctrls, itemData) {
     stage: itemData.stage,
     app_version: itemData.app_version
   }
+  Logger.warn('page engine ctrl数据 ' + JSON.stringify(data))
   let datas = []
   ctrls.forEach(ctrl => {
     datas.push({
