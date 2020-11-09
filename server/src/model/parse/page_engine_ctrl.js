@@ -32,7 +32,7 @@ function getTableName(projectId, createAt) {
 }
 
 async function inserts(projectId, ctrls, itemData) {
-  let createAt = itemData.countAtTimeStamp
+  let createAt = item.createAt
   let tableName = getTableName(projectId, createAt)
   Logger.log('page engine ctrl inserts tableName', tableName)
   let updateAt = moment().unix()

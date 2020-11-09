@@ -106,8 +106,8 @@ class PageEngineOnload extends ParseBase {
     let countIndex = _.get(record, ['detail', 'index'])
     // 客户提交的时间
     let recordAt = _.get(record, ['time'], 0)
-    let countAtTime = moment.unix(recordAt).format(COUNT_BY_MINUTE_DATE_FORMAT)
-    let countAtTimeStamp = recordAt
+    // let countAtTime = moment.unix(recordAt).format(COUNT_BY_MINUTE_DATE_FORMAT)
+    // let countAtTimeStamp = recordAt
     // let createAtTime = this.startAtMoment.format(COUNT_BY_MINUTE_DATE_FORMAT)
     // let createAtTimeStamp = Number(this.startAtMoment)
     // 因为是延迟两分钟执行了
@@ -233,6 +233,7 @@ class PageEngineOnload extends ParseBase {
               let onloadRecordList = this.formatCtrls(ctrlDetails)
               let updateRecordList = this.formatCtrls(updateCtrlDetails)
               await this.saveCtrls(projectId, onloadRecordList, onloadItem)
+              this.log('page_engine_onload ', updateItem)
               if(updateItem) {
                 await this.saveCtrls(projectId, updateRecordList, updateItem)
               }
