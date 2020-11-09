@@ -115,9 +115,10 @@ export default class PageEngineOnloadCount extends Base {
       url = `${urlObj.origin}`
       let key = `${record.tenantid}:${record.pagecode}:${url}:${record.app_version}`
       let countedData = dataMap[key]
+      
       if (!countedData) {
         countedData = {
-          count_size: record.count_size || 1,
+          count_size: record.count_size || 0,
           loaded_time: record.loaded_time,
           tenantid: record.tenantid,
           pagecode: record.pagecode,
@@ -126,10 +127,9 @@ export default class PageEngineOnloadCount extends Base {
           create_time: record.create_time,
           count_type: countType
         }
-      }
-      countedData.loaded_time = (countedData.loaded_time * countedData.count_size + record.loaded_time) / (countedData.count_size + 1)
-      if (countType === 'minute') {
-        countedData.count_size = countedData.count_size + 1
+      } else {
+        countedData.loaded_time = (countedData.loaded_time * countedData.count_size + record.loaded_time) / (countedData.count_size + (record.count_size || 1))
+        countedData.count_size = (countedData.count_size + (record.count_size || 1))
       }
       countedData.update_time = record.create_time
       dataMap[key] = countedData

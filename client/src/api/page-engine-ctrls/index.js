@@ -10,3 +10,13 @@ export const fetchPageEngineCtrlsList = (params) => {
     }
   })
 }
+
+export const fetchPageEngineCtrlsByEngineItemId = (params) => {
+  return axios.request({
+    url: `project/${getProjectId()}/api/pageenginectrls/getbyengineitemid`,
+    method: 'get',
+    params: {
+      ...params
+    }
+  })
+}

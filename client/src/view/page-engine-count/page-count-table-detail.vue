@@ -1,7 +1,8 @@
 <template>
   <div>
-    {{params}}
+    {{ params }}
     <Table height="400" :columns="listColumns" :data="listData"></Table>
+    <Page class="table-footer" :total="total" :current="current" :page-size="pageSize" show-total @on-change="pageChangeHandler" />
   </div>
 </template>
 
@@ -45,7 +46,10 @@ export default {
         title: 'ucid',
         key: 'ucid'
       }],
-      listData: []
+      listData: [],
+      current: 1,
+      pageSize: 20,
+      total: 0
     }
   },
   created() {
@@ -58,13 +62,22 @@ export default {
         pagecode: this.row.pagecode,
         app_version: this.row.app_version,
         tenantid: this.row.tenantid,
-        url: this.row.url
+        url: this.row.url,
+        pageindex: this.current,
+        pagesize: this.pageSize
       }
       delete params.start_loaded_time
       delete params.end_loaded_time
 
       let res = await fetchPageEngineCountDetailList(params)
       this.listData = res.data.data
+      this.total = res.data.total
+      this.pageSize = +res.data.pagesize
+      this.current = +res.data.pageindex
+    },
+    pageChangeHandler(pageindex) {
+      this.current = pageindex
+      this.getPageCountDetail()
     }
   }
 }

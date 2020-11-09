@@ -4,6 +4,7 @@ import DATE_FORMAT from '~/src/constants/date_format'
 import API_RES from '~/src/constants/api_res'
 import RouterConfigBuilder from '~/src/library/utils/modules/router_config_builder'
 import MSummaryPageEngineCtrlsSummary from '~/src/model/summary/page_engine_ctrls.js'
+import MPageEngineCtrlsParser from '~/src/model/parse/page_engine_ctrl'
 
 const getPageEngineCtrlsList = RouterConfigBuilder.routerConfigBuilder(
   '/api/pageenginectrls/list',
@@ -42,6 +43,30 @@ const getPageEngineCtrlsList = RouterConfigBuilder.routerConfigBuilder(
   }
 )
 
+
+const getPageEngineCtrlsByEngineItemId = RouterConfigBuilder.routerConfigBuilder(
+  '/api/pageenginectrls/getbyengineitemid',
+  RouterConfigBuilder.METHOD_TYPE_GET,
+  async (req, res) => {
+    let projectId = _.get(req, ['fee', 'project', 'projectId'], 0)
+    let request = _.get(req, ['query'], {})
+
+    let create_time = _.get(request, ['create_time'], 0)
+    let engine_item_id = _.get(request, ['engine_item_id'], '')
+
+    if (create_time) {
+      create_time = _.floor(create_time / 1000)
+    }
+    let condition = {
+      engine_item_id,
+      create_time
+    }
+    let list = await MPageEngineCtrlsParser.getList(projectId, create_time, condition)
+    res.send(API_RES.showResult(list))
+  }
+)
+
 export default {
-  ...getPageEngineCtrlsList
+  ...getPageEngineCtrlsList,
+  ...getPageEngineCtrlsByEngineItemId
 }
