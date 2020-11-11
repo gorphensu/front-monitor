@@ -75,6 +75,7 @@ async function getList(projectId, createAt, condition = {}) {
   let rawRecordList = await Knex
     .select(TABLE_COLUMN)
     .from(tableName)
+    .orderBy('create_time', 'desc')
     .where(builder => {
       ConditionUtils.setCondition(builder, condition)
     }).catch(e => {

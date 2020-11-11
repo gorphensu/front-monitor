@@ -61,6 +61,7 @@ const getPageEngineCtrlsByEngineItemId = RouterConfigBuilder.routerConfigBuilder
       engine_item_id,
       create_time
     }
+    console.log(condition)
     let list = await MPageEngineCtrlsParser.getList(projectId, create_time, condition)
     res.send(API_RES.showResult(list))
   }

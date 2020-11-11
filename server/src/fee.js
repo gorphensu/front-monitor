@@ -49,6 +49,8 @@ const registedCommandList = [
 
   './commands/summary/page_engine_onload_count',
 
+  './commands/parse/page_performance',
+  './commands/summary/page_performance',
 
   // 监控
   './commands/watch_dog/saas', //  saas监控

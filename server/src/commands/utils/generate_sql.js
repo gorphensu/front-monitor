@@ -43,6 +43,7 @@ const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
 const MULIT_R_O_PAGE_ENGINE_CTRL = 't_r_page_engine_ctrl'
 
 const MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT = 't_r_page_engine_onload_count'
+const MULIT_T_R_PAGE_PERFORMANCE = 't_r_page_performance'
 
 let TABLE_TEMPLATE = {}
 TABLE_TEMPLATE[SINGLE_T_O_PROJECT] = `(
@@ -576,6 +577,26 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT] = `(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,记录page 加载平均耗时';
 `
 
+TABLE_TEMPLATE[MULIT_T_R_PAGE_PERFORMANCE] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`url\` varchar(255) COMMENT '浏览器地址',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
+  \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '记录条数',
+  \`count_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计尺度(minute/hour/day)',
+  \`dom_parse_ms\` int(20) NOT NULL DEFAULT '0' COMMENT 'dom解析耗时',
+  \`load_resource_ms\` int(20) NOT NULL DEFAULT '0' COMMENT '资源加载耗时',
+  \`first_render_ms\` int(20) NOT NULL DEFAULT '0' COMMENT '首次渲染耗时',
+  \`first_tcp_ms\` int(20) NOT NULL DEFAULT '0' COMMENT '首包时间耗时',
+  \`first_response_ms\` int(20) NOT NULL DEFAULT '0' COMMENT '首次可交互耗时',
+  \`dom_ready_ms\` int(20) NOT NULL DEFAULT '0' COMMENT 'dom解析完成耗时',
+  \`load_complete_ms\` int(20) NOT NULL DEFAULT '0' COMMENT '页面完全加载耗时',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_url\` (\`id\`, \`url\`),
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,记录首次页面 加载平均耗时';
+`
+
 function generate(baseTableName, projectId = '', tableTime = '') {
 
   function createFinalTableName(baseTableName, projectId = '', tableTime = '') {
@@ -635,13 +656,16 @@ function generate(baseTableName, projectId = '', tableTime = '') {
       case MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT:
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
+      case MULIT_T_R_PAGE_PERFORMANCE:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
       default:
     }
     return fininalTableName
   }
   // 获取模板
   let content = TABLE_TEMPLATE[baseTableName]
-  content = content.replace(/__\$\$([^$]+)\$\$__/g, function(_, $1) {
+  content = content.replace(/__\$\$([^$]+)\$\$__/g, function (_, $1) {
     return createFinalTableName($1, projectId, tableTime)
   })
   // 生成表名
@@ -754,7 +778,8 @@ SET foreign_key_checks = 0;
           MULIT_T_R_PAGE_ENGINE_ONLOAD,
           MULIT_T_O_PAGE_ENGINE_CTRL,
           MULIT_R_O_PAGE_ENGINE_CTRL,
-          MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT
+          MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT,
+          MULIT_T_R_PAGE_PERFORMANCE
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

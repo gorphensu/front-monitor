@@ -206,18 +206,24 @@ class TaskManager extends Base {
       }
       // 每十分钟统计一次控件耗时数据
       that.dispatchParseCommand('Summary:PageEngineCtrlsSummary', nowByMinute, DATE_FORMAT.UNIT.MINUTE)
-
       that.log('registerTaskRepeatPer10Minute 命令分配完毕')
     })
 
     // 每10分钟的50秒启动
-    schedule.scheduleJob('50 */10 * * * *', function() {
+    schedule.scheduleJob('50 */10 * * * *', function () {
       that.log('registerTaskRepeatPer10Minute 开始执行')
       // 由于时间是50s触发的，需要讲时间设置到0s -10m-0
       let nowByMinute = moment().format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
       let startTime = moment().subtract(10, 'minutes').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_MINUTE)
       let endTime = nowByMinute
       that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'minute', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
+      that.execCommand('Parse:PagePerformance',
         [
           'minute', // countType
           startTime, // startTime
@@ -268,6 +274,13 @@ class TaskManager extends Base {
       let startTime = moment().subtract(1, 'hours').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_HOUR)
       let endTime = nowByHour
       that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'hour', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
+      that.execCommand('Summary:PagePerformance',
         [
           'hour', // countType
           startTime, // startTime
@@ -380,6 +393,13 @@ class TaskManager extends Base {
       let startTime = moment().subtract(1, 'days').format(DATE_FORMAT.COMMAND_ARGUMENT_BY_DAY)
       let endTime = nowByDay
       that.execCommand('Summary:PageEngineOnloadCount',
+        [
+          'day', // countType
+          startTime, // startTime
+          endTime
+        ]
+      )
+      that.execCommand('Summary:PagePerformance',
         [
           'day', // countType
           startTime, // startTime

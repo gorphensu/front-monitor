@@ -97,7 +97,7 @@ class ParseBase extends Base {
       await new Promise(function (resolve, reject) {
         let onDataReceive = async (data, next) => {
           let record = JSON.parse(data)
-          that.log('parse record ',record);
+          // that.log('parse record ',record);
           if (that.isLegalRecord(record)) {
             that.processRecordAndCacheInProjectMap(record)
           }

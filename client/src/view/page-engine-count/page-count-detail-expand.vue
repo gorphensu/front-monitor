@@ -34,7 +34,7 @@ export default {
   methods: {
     async getCtrlsData() {
       if (this.row) {
-        let create_time = this.row.create_time
+        let create_time = this.row.create_time * 1000
         let engine_item_id = this.row.item_id
         let res = await fetchPageEngineCtrlsByEngineItemId({
           create_time,
