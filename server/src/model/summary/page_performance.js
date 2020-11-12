@@ -32,6 +32,25 @@ function getTableName(projectId, createAt) {
   return `${BASE_TABLE_NAME}_${projectId}_${monthStr}`
 }
 
+async function list(projectId, startAt, endAt, condition = {}) {
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, endAt, getTableName)
+  let res = []
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex
+      .select(TABLE_COLUMN)
+      .from(tableName)
+      .where(builder => {
+        ConditionUtils.setCondition(builder, condition)
+      })
+      .catch((e) => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    res = res.concat(rawRecordList)
+  }
+  return res
+}
+
 async function get(projectId, countAt, condition = {}) {
   // console.log('condition', condition)
   let tableName = getTableName(projectId, countAt)
@@ -86,8 +105,76 @@ async function update(projectId, countAt, record, condition = {}) {
   return affectRows
 }
 
+async function getDistinctVersionListInRange(projectId, startAt, endAt, countType) {
+  let versionList = []
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, endAt, getTableName)
+  for (let tableName of tableNameList) {
+    let rawRecordList = await Knex.distinct(['app_version'])
+      .from(tableName)
+      .where(builder => {
+        builder.where('count_type', '=', countType)
+        builder.where('create_time', '>=', startAt)
+        builder.where('create_time', '<', endAt)
+      })
+      .catch((e) => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    for (let rawRecord of rawRecordList) {
+      if (_.has(rawRecord, ['app_version'])) {
+        let version = _.get(rawRecord, ['app_version'])
+        versionList.push(version)
+      }
+    }
+  }
+  let distinctVersionList = _.union(versionList)
+  return distinctVersionList
+}
+
+async function getDistinctUrlListInRange(projectId, startAt, endAt, countType = DATE_FORMAT.UNIT.MINUTE) {
+  // let startAtMoment = moment.unix(startAt).startOf(countType)
+  let urlList = []
+  let tableNameList = DatabaseUtil.getTableNameListInRange(projectId, startAt, endAt, getTableName)
+
+  // let countAtTimeList = []
+  // // 获取所有可能的countAtTime
+  // for (let countStartAtMoment = startAtMoment.clone(); countStartAtMoment.unix() < endAt; countStartAtMoment = countStartAtMoment.clone().add(1, countType)) {
+  //   let formatCountAtTime = countStartAtMoment.format(DATE_FORMAT.DATABASE_BY_UNIT[countType])
+  //   countAtTimeList.push(formatCountAtTime)
+  // }
+
+
+  // 循环查询数据库
+  for (let tableName of tableNameList) {
+    // console.log('tableName,countType,indicatorList,countAtTimeList',tableName,countType,indicatorList,countAtTimeList);
+    let rawRecordList = await Knex
+      .distinct(['url'])
+      .from(tableName)
+      .where({
+        count_type: countType
+      })
+      .andWhereBetween('create_time', [startAt, endAt])
+      .catch((e) => {
+        Logger.warn('查询失败, 错误原因 =>', e)
+        return []
+      })
+    for (let rawRecord of rawRecordList) {
+      if (_.has(rawRecord, ['url'])) {
+        let url = _.get(rawRecord, ['url'])
+        urlList.push(url)
+      }
+    }
+  }
+  let distinctUrlList = _.union(urlList)
+  Logger.log('performance distinctUrlList', distinctUrlList)
+  return distinctUrlList
+}
+
 export default {
+  list,
   get,
   insert,
-  update
+  update,
+  getDistinctVersionListInRange,
+  getDistinctUrlListInRange
 }

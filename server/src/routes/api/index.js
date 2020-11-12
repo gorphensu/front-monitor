@@ -16,6 +16,8 @@ import VueComponentRender from '~/src/routes/api/vue-component-render'
 import PageEngineOnload from '~/src/routes/api/page-engine-onload'
 import PageEngineCtrls from '~/src/routes/api/page-engine-ctrls'
 import PageEngineOnloadCount from '~/src/routes/api/page-engine-onload-count'
+import PagePerformance from '~/src/routes/api/page-performance'
+
 export default {
   ...Behavior,
   ...Os,
@@ -33,5 +35,6 @@ export default {
   // ...PageEngineRender,
   ...PageEngineOnload,
   ...PageEngineCtrls,
-  ...PageEngineOnloadCount
+  ...PageEngineOnloadCount,
+  ...PagePerformance
 }

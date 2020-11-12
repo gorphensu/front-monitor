@@ -16,6 +16,7 @@ import VueComponentRender from '@/view/vue-component-render'
 import PageEngineOnload from '@/view/page-engine'
 import VueComponent from '@/view/vue-component'
 import PageEngineCount from '@/view/page-engine-count'
+import PagePerformance from '@/view/page-performance'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -132,6 +133,14 @@ export default [
           title: '页面性能',
         },
         component: ViewPerformance,
+      },{
+        path: 'page-performance',
+        name: '页面加载性能',
+        meta: {
+          icon: 'md-speedometer',
+          title: '页面加载性能'
+        },
+        component: PagePerformance
       },
       {
         path: 'page-engine-onload',
