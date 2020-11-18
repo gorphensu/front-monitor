@@ -72,7 +72,9 @@ export default class PageEngineCtrlsSummary extends Base {
       let dataAndTimeRes
       switch (countType) {
         case DATE_FORMAT.UNIT.MINUTE:
-          res = await this.dealMinutePart(projectId, startAt, endAt)
+          let resObj = await this.dealMinutePart(projectId, startAt, endAt)
+          res = resObj.ctrls
+          dataAndTimeRes = resObj.datasources
           break;
         case DATE_FORMAT.UNIT.HOUR:
           res = await this.dealHourPart(projectId, startAt, endAt)
@@ -84,11 +86,18 @@ export default class PageEngineCtrlsSummary extends Base {
 
       if (!res || !res.length) {
         Logger.info('当前无数据需要统计')
-        return
+      } else {
+        Logger.info(`开始处理项目${projectId}(${projectName})的数据 时间:${countDate}, 共${res.length}条`)
+        // 拿到数据后，一条一条插入
+        this.save2DB(projectId, res, startAt, endAt, countType)
       }
-      Logger.info(`开始处理项目${projectId}(${projectName})的数据 时间:${countDate}, 共${res.length}条`)
-      // 拿到数据后，一条一条插入
-      this.save2DB(projectId, res, startAt, endAt, countType)
+
+      if (!dataAndTimeRes || !dataAndTimeRes.length) {
+        Logger.info('当前无数据需要统计')
+      } else {
+        Logger.info(`开始处理项目${projectId}(${projectName})的数据 时间:${countDate}, 共${res.length}条`)
+        this.save2DataTimeDB(projectId, dataAndTimeRes, startAt, endAt, countType)
+      }
     }
   }
 
@@ -160,6 +169,30 @@ export default class PageEngineCtrlsSummary extends Base {
     }
   }
 
+  getGroupType(len) {
+    if (len <= 50) {
+      return '0-50'
+    } else if (len > 50 && len <= 100) {
+      return '50-100'
+    } else if (len > 100 && len <= 200) {
+      return '100-200'
+    } else if (len > 200 && len <= 500) {
+      return '200-500'
+    } else if (len > 500 && len <= 1000) {
+      return '500-1000'
+    } else if (len > 1000 && len <= 2000) {
+      return '1000-2000'
+    } else if (len > 2000 && len <= 5000) {
+      return '2000-5000'
+    } else if (len > 5000 && len <= 10000) {
+      return '5000-10000'
+    } else if (len > 10000 && len <= 20000) {
+      return '10000-20000'
+    } else {
+      return '20000-'
+    }
+  }
+
   // 分钟级别的需要从源表当中去获取replaceAndAutoIncrementRecord
   async dealMinutePart(projectId, startAt, endAt) {
     let res = await MPageEngineCtrl.getList(projectId, startAt, {
@@ -180,11 +213,40 @@ export default class PageEngineCtrlsSummary extends Base {
         }
       })
 
-      
+      let tmpDatasources = {}
+      res.forEach(data => {
+        if (data.detail) {
+          let sourceLen
+          try {
+            sourceLen = JSON.parse(data.detail).length
+          } catch (e) { }
+          if (sourceLen != null) {
+            let group_type = this.getGroupType(data['count_size'] || 1)
+            if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
+              tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+                component_type: data.component_type,
+                count_type: 'minute',
+                count_size: data.count_size || 1,
+                group_type,
+                app_version: data.app_version,
+                cost_time: data.cost_time
+              }
+            } else {
+              tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+            }
+          }
+        }
+      })
 
-      return Object.values(tmpData)
+      return {
+        ctrls: Object.values(tmpData),
+        datasources: Object.values(tmpDatasources)
+      }
     }
-    return res
+    return {
+      ctrls: [],
+      datasources: []
+    }
   }
   // 小时级别的需要从结果表中获取
   // 根据时间，查找所属区域minute中的数据
@@ -207,9 +269,19 @@ export default class PageEngineCtrlsSummary extends Base {
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
-      return Object.values(tmpData)
+      let tmpDatasources = {}
+
+
+
+      return {
+        ctrls: Object.values(tmpData),
+        datasources: Object.values(tmpDatasources)
+      }
     }
-    return res.data
+    return {
+      ctrls: [],
+      datasources: []
+    }
   }
 
   async dealDayPart(projectId, startAt, endAt) {

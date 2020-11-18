@@ -63,8 +63,7 @@ async function inserts(projectId, ctrls, itemData) {
     .insert(datas)
     .from(tableName)
     .catch(e => {
-      Logger.warn('page engine ctrl数据插入失败，错误原因=>', e, datas)
-      debugger
+      Logger.warn('page engine ctrl数据插入失败，错误原因=>', e)
       return []
     })
   let insertId = _.get(insertResult, [0], 0)
