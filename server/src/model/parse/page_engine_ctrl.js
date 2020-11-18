@@ -55,7 +55,7 @@ async function inserts(projectId, ctrls, itemData) {
       component_type: ctrl.type,
       operation_type: ctrl.operation,
       cost_time: ctrl.costtime,
-      detail: ctrl.detail
+      detail: !ctrl.detail ? '' : (ctrl.detail && typeof ctrl.detail === 'object' ? JSON.stringify(ctrl.detail) : ctrl.detail)
     })
   })
   let insertResult = await Knex
@@ -63,7 +63,8 @@ async function inserts(projectId, ctrls, itemData) {
     .insert(datas)
     .from(tableName)
     .catch(e => {
-      Logger.warn('page engine ctrl数据插入失败，错误原因=>', e)
+      Logger.warn('page engine ctrl数据插入失败，错误原因=>', e, datas)
+      debugger
       return []
     })
   let insertId = _.get(insertResult, [0], 0)

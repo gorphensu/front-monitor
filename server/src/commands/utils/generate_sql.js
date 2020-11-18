@@ -41,6 +41,7 @@ const MULIT_T_O_PAGE_ENGINE_ONLOAD = 't_o_page_engine_onload'
 const MULIT_T_R_PAGE_ENGINE_ONLOAD = 't_r_page_engine_onload'
 const MULIT_T_O_PAGE_ENGINE_CTRL = 't_o_page_engine_ctrl'
 const MULIT_R_O_PAGE_ENGINE_CTRL = 't_r_page_engine_ctrl'
+const MULIT_R_O_PAGE_ENGINE_CTRL_DATA_TIME = 't_r_page_engine_ctrl_data_time'
 
 const MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT = 't_r_page_engine_onload_count'
 const MULIT_T_R_PAGE_PERFORMANCE = 't_r_page_performance'
@@ -577,6 +578,23 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT] = `(
   KEY \`tenantid_pagecode_app_version_url\` (\`tenantid\`, \`pagecode\`, \`app_version\`, \`url\`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,记录page 加载平均耗时';
 `
+TABLE_TEMPLATE[MULIT_R_O_PAGE_ENGINE_CTRL_DATA_TIME] = `(
+  \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
+  \`component_type\` varchar(30) NOT NULL DEFAULT '' COMMENT '控件类型',
+  \`cost_time\` int(20) NOT NULL DEFAULT '0' COMMENT '消耗耗时',
+  \`count_size\` int(20) NOT NULL DEFAULT '0' COMMENT '记录条数',
+  \`count_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '统计尺度(minute/hour/day)',
+  \`app_version\` varchar(20) NOT NULL DEFAULT '' COMMENT '所属版本',
+  \`group_type\` varchar(20) NOT NULL DEFAULT '' COMMENT '数量分组0-50，50-100，100-200，200-500，500-1000，1000-2000，2000-5000，5000-10000，10000-20000， 20000以上',
+  \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_component_type\` (\`id\`, \`component_type\`),
+  KEY \`idx_component_type_count_type\` (\`id\`, \`component_type\`, \`count_type\`),
+  KEY \`idx_component_type_app_version\` (\`id\`, \`component_type\`, \`app_version\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按控件以及版本,记录控件加载数据平均耗时';
+`
+
 
 TABLE_TEMPLATE[MULIT_T_R_PAGE_PERFORMANCE] = `(
   \`id\` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '记录id',
@@ -658,6 +676,9 @@ function generate(baseTableName, projectId = '', tableTime = '') {
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
       case MULIT_T_R_PAGE_PERFORMANCE:
+        fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
+        break
+      case MULIT_R_O_PAGE_ENGINE_CTRL_DATA_TIME:
         fininalTableName = `${fininalTableName}_${projectId}_${tableTime}`
         break
       default:
@@ -780,7 +801,8 @@ SET foreign_key_checks = 0;
           MULIT_T_O_PAGE_ENGINE_CTRL,
           MULIT_R_O_PAGE_ENGINE_CTRL,
           MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT,
-          MULIT_T_R_PAGE_PERFORMANCE
+          MULIT_T_R_PAGE_PERFORMANCE,
+          MULIT_R_O_PAGE_ENGINE_CTRL_DATA_TIME
         ]) {
           let content = generate(tableName, projectId, curremtAtYM)
           sqlContent = `${sqlContent}\n${content}`

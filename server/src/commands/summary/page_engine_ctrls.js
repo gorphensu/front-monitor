@@ -69,6 +69,7 @@ export default class PageEngineCtrlsSummary extends Base {
         continue
       }
       let res
+      let dataAndTimeRes
       switch (countType) {
         case DATE_FORMAT.UNIT.MINUTE:
           res = await this.dealMinutePart(projectId, startAt, endAt)
@@ -178,6 +179,9 @@ export default class PageEngineCtrlsSummary extends Base {
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
+
+      
+
       return Object.values(tmpData)
     }
     return res
