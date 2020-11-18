@@ -263,7 +263,8 @@ class PageEngineOnload extends ParseBase {
           code: ctrlCode,
           operation: operation.type,
           costtime: operation.costtime,
-          app_version: ctrlsMap[ctrlCode].app_version
+          app_version: ctrlsMap[ctrlCode].app_version,
+          detail: operation.detail
         })
       })
     }

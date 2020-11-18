@@ -17,7 +17,8 @@ const TABLE_COLUMN = [
   `operation_type`,
   `stage`,
   `create_time`,
-  `app_version`
+  `app_version`,
+  `detail`
 ]
 
 /**
@@ -40,9 +41,8 @@ async function inserts(projectId, ctrls, itemData) {
     engine_item_id: itemData.itemId,
     create_time: createAt,
     stage: itemData.stage,
-    app_version: itemData.app_version
+    app_version: itemData.app_version,
   }
-  Logger.warn('page engine ctrl数据 ' + JSON.stringify(data))
   let datas = []
   ctrls.forEach(ctrl => {
     datas.push({
@@ -54,7 +54,8 @@ async function inserts(projectId, ctrls, itemData) {
       component_code: ctrl.code,
       component_type: ctrl.type,
       operation_type: ctrl.operation,
-      cost_time: ctrl.costtime
+      cost_time: ctrl.costtime,
+      detail: ctrl.detail
     })
   })
   let insertResult = await Knex

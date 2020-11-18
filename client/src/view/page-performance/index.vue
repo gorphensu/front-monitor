@@ -127,7 +127,28 @@ export default {
     },
     setOption(datas, versions) {
       this.option.legend.data = ['DOM解析耗时', '资源加载耗时', '首次渲染耗时', '首包时间耗时', '首次可交互耗时', 'DOM_READY_耗时', '页面完全加载耗时']
-      this.option.xAxis[0].data = versions
+      this.option.xAxis[0].data = versions.sort((a, b) => {
+        if (a.sort && b.sort) {
+          return a.sort - b.sort
+        }
+        if (a.sort) {
+          return 1
+        }
+        if (b.sort) {
+          return 1
+        }
+        let aVersion = a.replace(/v/gi, '').split('')
+        let bVersion = b.replace(/v/gi, '').split('')
+        let secondAVersion = aVersion.slice(1).join('')
+        let secondBVersion = bVersion.slice(1).join('')
+        if (Number(secondAVersion) - Number(secondBVersion)) {
+          return Number(secondAVersion) - Number(secondBVersion)
+        } else {
+          let threeAVersion = aVersion.slice(2).join('')
+          let threeBVersion = bVersion.slice(2).join('')
+          return Number(threeAVersion) - Number(threeBVersion)
+        }
+      })
       this.option.series = ['DOM解析耗时', '资源加载耗时', '首次渲染耗时', '首包时间耗时', '首次可交互耗时', 'DOM_READY_耗时', '页面完全加载耗时'].map(indictor => {
         return {
           name: indictor,
@@ -143,6 +164,9 @@ export default {
       let map = {}
       datas.forEach(data => {
         let { app_version } = data
+        if (app_version === '3.0.0') {
+          app_version = '_'
+        }
         let tmpData = map[app_version]
         if (!tmpData) {
           tmpData = {

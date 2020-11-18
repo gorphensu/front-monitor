@@ -142,15 +142,15 @@ export default [
         },
         component: PagePerformance
       },
-      {
-        path: 'page-engine-onload',
-        name: '表单引擎性能',
-        meta: {
-          icon: 'md-speedometer',
-          title: '表单引擎性能',
-        },
-        component: PageEngineOnload,
-      },
+      // {
+      //   path: 'page-engine-onload',
+      //   name: '表单引擎性能',
+      //   meta: {
+      //     icon: 'md-speedometer',
+      //     title: '表单引擎性能',
+      //   },
+      //   component: PageEngineOnload,
+      // },
       {
         path: 'page-engine-count',
         name: '表单性能',
