@@ -2,6 +2,7 @@ import Base from './base'
 import moment from 'moment'
 import Logger from '~/src/library/logger'
 import MPageEngineCtrlsSummary from '~/src/model/summary/page_engine_ctrls'
+import MPageEngineCtrlDataTimeSummary from '~/src/model/summary/page_engine_data_time'
 import MPageEngineCtrl from '~/src/model/parse/page_engine_ctrl'
 import MProject from '~/src/model/project/project'
 import DATE_FORMAT from '~/src/constants/date_format'
@@ -38,6 +39,7 @@ export default class PageEngineCtrlsSummary extends Base {
     let countMoment = null
     let startAt = 0
     let endAt = 0
+    debugger
     switch (countType) {
       case DATE_FORMAT.UNIT.MINUTE:
         countMoment = moment(countAtMoment).set('second', 0)
@@ -69,21 +71,26 @@ export default class PageEngineCtrlsSummary extends Base {
         continue
       }
       let res
+      let resObj
       let dataAndTimeRes
       switch (countType) {
         case DATE_FORMAT.UNIT.MINUTE:
-          let resObj = await this.dealMinutePart(projectId, startAt, endAt)
+          resObj = await this.dealMinutePart(projectId, startAt, endAt)
           res = resObj.ctrls
           dataAndTimeRes = resObj.datasources
           break;
         case DATE_FORMAT.UNIT.HOUR:
-          res = await this.dealHourPart(projectId, startAt, endAt)
+          resObj = await this.dealHourPart(projectId, startAt, endAt)
+          res = resObj.ctrls
+          dataAndTimeRes = resObj.datasources
           break;
         case DATE_FORMAT.UNIT.DAY:
-          res = await this.dealDayPart(projectId, startAt, endAt)
+          resObj = await this.dealDayPart(projectId, startAt, endAt)
+          res = resObj.ctrls
+          dataAndTimeRes = resObj.datasources
           break;
       }
-
+      debugger
       if (!res || !res.length) {
         Logger.info('当前无数据需要统计')
       } else {
@@ -95,6 +102,7 @@ export default class PageEngineCtrlsSummary extends Base {
       if (!dataAndTimeRes || !dataAndTimeRes.length) {
         Logger.info('当前无数据需要统计')
       } else {
+        debugger
         Logger.info(`开始处理项目${projectId}(${projectName})的数据 时间:${countDate}, 共${res.length}条`)
         this.save2DataTimeDB(projectId, dataAndTimeRes, startAt, endAt, countType)
       }
@@ -169,6 +177,73 @@ export default class PageEngineCtrlsSummary extends Base {
     }
   }
 
+  async addOrReplaceDataTimeRecord(projectId, recordInfo, startAt, endAt, countType) {
+    let component_type = recordInfo.component_type
+    let app_version = recordInfo.app_version
+    let group_type = recordInfo.group_type
+    let count_type = countType
+    if (countType === DATE_FORMAT.UNIT.MINUTE) {
+      // 查询是否存在该数据
+      let rawRecordList = await MPageEngineCtrlDataTimeSummary.getRecord(projectId, startAt, {
+        component_type,
+        count_type,
+        app_version,
+        group_type,
+        __range_min__create_time: startAt,
+        __range_max__create_time: endAt
+      }, countType)
+      // 插入更新
+      if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
+        return await MPageEngineCtrlDataTimeSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
+      } else { // 新建
+        return await MPageEngineCtrlDataTimeSummary.insertRecord(projectId, startAt, recordInfo, countType)
+      }
+    } else if (countType === DATE_FORMAT.UNIT.HOUR) {
+      // 查询是否存在该数据
+      let rawRecordList = await MPageEngineCtrlDataTimeSummary.getRecord(projectId, startAt, {
+        component_type,
+        count_type,
+        group_type,
+        __range_min__create_time: startAt,
+        __range_max__create_time: endAt,
+        app_version
+      }, countType)
+      // 插入更新
+      // 查看下有没有hour数据了
+      if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
+        // 需要改变下操作数据
+        return await MPageEngineCtrlDataTimeSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
+      } else { // 新建
+        return await MPageEngineCtrlDataTimeSummary.insertRecord(projectId, startAt, {
+          ...recordInfo,
+          count_type: DATE_FORMAT.UNIT.HOUR
+        }, countType)
+      }
+    } else if (countType === DATE_FORMAT.UNIT.DAY) {
+      // 查询是否存在该数据
+      let rawRecordList = await MPageEngineCtrlDataTimeSummary.getRecord(projectId, startAt, {
+        component_type,
+        count_type,
+        group_type,
+        __range_min__create_time: startAt,
+        __range_max__create_time: endAt,
+        app_version
+      }, countType)
+      // 插入更新
+      // 查看下有没有hour数据了
+      if (rawRecordList && rawRecordList.length && rawRecordList[0]) {
+        // 需要改变下操作数据
+        return await MPageEngineCtrlDataTimeSummary.updateRecord(projectId, startAt, rawRecordList[rawRecordList.length - 1], recordInfo, countType)
+      } else { // 新建
+        return await MPageEngineCtrlDataTimeSummary.insertRecord(projectId, startAt, {
+          ...recordInfo,
+          count_type: DATE_FORMAT.UNIT.DAY
+        }, countType)
+      }
+
+    }
+  }
+
   getGroupType(len) {
     if (len <= 50) {
       return '0-50'
@@ -209,7 +284,10 @@ export default class PageEngineCtrlsSummary extends Base {
             count_size: data.count_size || 1
           }
         } else {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time =
+            (tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size * tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size)
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
+
         }
       })
 
@@ -223,7 +301,7 @@ export default class PageEngineCtrlsSummary extends Base {
           if (sourceLen != null) {
             let group_type = this.getGroupType(data['count_size'] || 1)
             if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
-              tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
                 component_type: data.component_type,
                 count_type: 'minute',
                 count_size: data.count_size || 1,
@@ -232,7 +310,9 @@ export default class PageEngineCtrlsSummary extends Base {
                 cost_time: data.cost_time
               }
             } else {
-              tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
+                (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
             }
           }
         }
@@ -266,12 +346,37 @@ export default class PageEngineCtrlsSummary extends Base {
             count_size: data.count_size || 1
           }
         } else {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time =
+            (tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size * tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size)
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
       let tmpDatasources = {}
-
-
+      res.forEach(data => {
+        if (data.detail) {
+          let sourceLen
+          try {
+            sourceLen = JSON.parse(data.detail).length
+          } catch (e) { }
+          if (sourceLen != null) {
+            let group_type = this.getGroupType(data['count_size'] || 1)
+            if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+                component_type: data.component_type,
+                count_type: 'hour',
+                count_size: data.count_size || 1,
+                group_type,
+                app_version: data.app_version,
+                cost_time: data.cost_time
+              }
+            } else {
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
+                (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+            }
+          }
+        }
+      })
 
       return {
         ctrls: Object.values(tmpData),
@@ -300,12 +405,47 @@ export default class PageEngineCtrlsSummary extends Base {
             count_size: data.count_size || 1
           }
         } else {
+          tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time =
+            (tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size * tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size)
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
-      return Object.values(tmpData)
+
+      let tmpDatasources = {}
+      res.forEach(data => {
+        if (data.detail) {
+          let sourceLen
+          try {
+            sourceLen = JSON.parse(data.detail).length
+          } catch (e) { }
+          if (sourceLen != null) {
+            let group_type = this.getGroupType(data['count_size'] || 1)
+            if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+                component_type: data.component_type,
+                count_type: 'day',
+                count_size: data.count_size || 1,
+                group_type,
+                app_version: data.app_version,
+                cost_time: data.cost_time
+              }
+            } else {
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
+                (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
+              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+            }
+          }
+        }
+      })
+      return {
+        ctrls: Object.values(tmpData),
+        datasources: Object.values(tmpDatasources)
+      }
     }
-    return res.data
+    return {
+      ctrls: [],
+      datasources: []
+    }
   }
 
   async save2DB(projectId, records = [], startAt, endAt, countType) {
@@ -328,6 +468,27 @@ export default class PageEngineCtrlsSummary extends Base {
       }
     }
 
+    this.reportProcess(processRecordCount, successSaveCount, totalRecordCount)
+  }
+
+  async save2DataTimeDB(projecetId, records = [], startAt, endAt, countType) {
+    let totalRecordCount = records.length
+    let processRecordCount = 0
+    let successSaveCount = 0
+    for (let record of records) {
+      try {
+        let isSuccess = await this.addOrReplaceDataTimeRecord(projecetId, record, startAt, endAt, countType)
+        if (isSuccess) {
+          successSaveCount++
+        } else {
+          Logger.info('summary page_engine_ctrl_summary datatime 插入失败')
+        }
+        processRecordCount++
+      } catch (e) {
+        Logger.info('summary page_engine_ctrl_summary datatime 插入失败', e)
+        processRecordCount++
+      }
+    }
     this.reportProcess(processRecordCount, successSaveCount, totalRecordCount)
   }
 
