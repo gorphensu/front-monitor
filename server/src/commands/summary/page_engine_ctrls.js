@@ -337,8 +337,8 @@ export default class PageEngineCtrlsSummary extends Base {
       pagesize: 999999999
     }, DATE_FORMAT.UNIT.MINUTE)
     // 提前处理
+    let tmpData = {}
     if (res.data.length) {
-      let tmpData = {}
       res.data.forEach(data => {
         if (!tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`]) {
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`] = {
@@ -351,41 +351,35 @@ export default class PageEngineCtrlsSummary extends Base {
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size = tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`].count_size + (data.count_size || 1)
         }
       })
-      let tmpDatasources = {}
-      res.forEach(data => {
-        if (data.detail) {
-          let sourceLen
-          try {
-            sourceLen = JSON.parse(data.detail).length
-          } catch (e) { }
-          if (sourceLen != null) {
-            let group_type = this.getGroupType(data['count_size'] || 1)
-            if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
-                component_type: data.component_type,
-                count_type: 'hour',
-                count_size: data.count_size || 1,
-                group_type,
-                app_version: data.app_version,
-                cost_time: data.cost_time
-              }
-            } else {
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
-                (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
-            }
-          }
-        }
-      })
-
-      return {
-        ctrls: Object.values(tmpData),
-        datasources: Object.values(tmpDatasources)
-      }
     }
+
+    let dataTimeRes = await MPageEngineCtrlDataTimeSummary.getList(projectId, startAt, endAt, {
+      __range_min__create_time: startAt,
+      __range_max__create_time: endAt,
+      pagesize: 999999999
+    }, DATE_FORMAT.UNIT.MINUTE)
+    let tmpDatasources = {}
+    dataTimeRes.data.length && dataTimeRes.data.forEach(data => {
+      let group_type = this.getGroupType(data['count_size'] || 1)
+      if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+          component_type: data.component_type,
+          count_type: 'hour',
+          count_size: data.count_size || 1,
+          group_type,
+          app_version: data.app_version,
+          cost_time: data.cost_time
+        }
+      } else {
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
+          (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+      }
+    })
+
     return {
-      ctrls: [],
-      datasources: []
+      ctrls: Object.values(tmpData),
+      datasources: Object.values(tmpDatasources)
     }
   }
 
@@ -396,8 +390,8 @@ export default class PageEngineCtrlsSummary extends Base {
       pagesize: 999999999
     }, DATE_FORMAT.UNIT.HOUR)
     // 提前处理
+    let tmpData = {}
     if (res.data.length) {
-      let tmpData = {}
       res.data.forEach(data => {
         if (!tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`]) {
           tmpData[`${data['component_type']}__${data['app_version']}__${data['operation_type']}`] = {
@@ -411,40 +405,33 @@ export default class PageEngineCtrlsSummary extends Base {
         }
       })
 
-      let tmpDatasources = {}
-      res.forEach(data => {
-        if (data.detail) {
-          let sourceLen
-          try {
-            sourceLen = JSON.parse(data.detail).length
-          } catch (e) { }
-          if (sourceLen != null) {
-            let group_type = this.getGroupType(data['count_size'] || 1)
-            if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
-                component_type: data.component_type,
-                count_type: 'day',
-                count_size: data.count_size || 1,
-                group_type,
-                app_version: data.app_version,
-                cost_time: data.cost_time
-              }
-            } else {
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
-                (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
-              tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
-            }
-          }
-        }
-      })
-      return {
-        ctrls: Object.values(tmpData),
-        datasources: Object.values(tmpDatasources)
-      }
     }
+    let dataTimeRes = await MPageEngineCtrlDataTimeSummary.getList(projectId, startAt, endAt, {
+      __range_min__create_time: startAt,
+      __range_max__create_time: endAt,
+      pagesize: 999999999
+    }, DATE_FORMAT.UNIT.MINUTE)
+    let tmpDatasources = {}
+    dataTimeRes.data.length && dataTimeRes.data.forEach(data => {
+      let group_type = this.getGroupType(data['count_size'] || 1)
+      if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
+          component_type: data.component_type,
+          count_type: 'day',
+          count_size: data.count_size || 1,
+          group_type,
+          app_version: data.app_version,
+          cost_time: data.cost_time
+        }
+      } else {
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time =
+          (tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size * tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].cost_time + data.cost_time * (data.count_size || 1)) / ((data.count_size || 1) + tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size)
+        tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size = tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`].count_size + (data.count_size || 1)
+      }
+    })
     return {
-      ctrls: [],
-      datasources: []
+      ctrls: Object.values(tmpData),
+      datasources: Object.values(tmpDatasources)
     }
   }
 
