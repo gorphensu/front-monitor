@@ -245,7 +245,7 @@ export default class PageEngineCtrlsSummary extends Base {
   }
 
   getGroupType(len) {
-    if (len <= 50) {
+    if (len <= 50 || !len) {
       return '0-50'
     } else if (len > 50 && len <= 100) {
       return '50-100'
@@ -299,7 +299,7 @@ export default class PageEngineCtrlsSummary extends Base {
             sourceLen = JSON.parse(data.detail).length
           } catch (e) { }
           if (sourceLen != null) {
-            let group_type = this.getGroupType(data['count_size'] || 1)
+            let group_type = this.getGroupType(data['cost_time'])
             if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
               tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
                 component_type: data.component_type,
@@ -360,7 +360,7 @@ export default class PageEngineCtrlsSummary extends Base {
     }, DATE_FORMAT.UNIT.MINUTE)
     let tmpDatasources = {}
     dataTimeRes.data.length && dataTimeRes.data.forEach(data => {
-      let group_type = this.getGroupType(data['count_size'] || 1)
+      let group_type = this.getGroupType(data['cost_time'])
       if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
         tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
           component_type: data.component_type,
@@ -413,7 +413,7 @@ export default class PageEngineCtrlsSummary extends Base {
     }, DATE_FORMAT.UNIT.MINUTE)
     let tmpDatasources = {}
     dataTimeRes.data.length && dataTimeRes.data.forEach(data => {
-      let group_type = this.getGroupType(data['count_size'] || 1)
+      let group_type = this.getGroupType(data['cost_time'])
       if (!tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`]) {
         tmpDatasources[`${data['component_type']}__${data['app_version']}__${data['group_type']}`] = {
           component_type: data.component_type,
