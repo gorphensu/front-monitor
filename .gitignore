@@ -41,7 +41,7 @@ build/Release
 client/node_modules/
 server/node_modules/
 server/jspm_packages/
- 
+mysql.bak
 # Typescript v1 declaration files
 typings/
  
