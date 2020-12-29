@@ -33,8 +33,8 @@ services:
         '--collation-server=utf8mb4_general_ci',
       ]
     environment:
-      MYSQL_ROOT_PASSWORD: sb19890430
-      MYSQL_PASSWORD: sb19890430
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_PASSWORD: 123456
       MYSQL_DATABASE: platform
     ports:
       - '3306:3306'

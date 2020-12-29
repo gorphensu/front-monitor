@@ -17,7 +17,8 @@ import PageEngineOnload from '~/src/routes/api/page-engine-onload'
 import PageEngineCtrls from '~/src/routes/api/page-engine-ctrls'
 import PageEngineOnloadCount from '~/src/routes/api/page-engine-onload-count'
 import PagePerformance from '~/src/routes/api/page-performance'
-
+// import PageEngineDataTime from '~/src/routes/api/page-engine-data-time'
+import PageEngineDataTime from '~/src/routes/api/page-engine-data-time'
 export default {
   ...Behavior,
   ...Os,
@@ -36,5 +37,6 @@ export default {
   ...PageEngineOnload,
   ...PageEngineCtrls,
   ...PageEngineOnloadCount,
-  ...PagePerformance
+  ...PagePerformance,
+  ...PageEngineDataTime
 }

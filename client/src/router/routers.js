@@ -17,6 +17,7 @@ import PageEngineOnload from '@/view/page-engine'
 import VueComponent from '@/view/vue-component'
 import PageEngineCount from '@/view/page-engine-count'
 import PagePerformance from '@/view/page-performance'
+import PageEngineDataTime from '@/view/page-engine-data-time/inde.vue'
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -169,6 +170,16 @@ export default [
         },
         component: VueComponent,
       },
+      {
+        path: 'page-engine-data-time',
+        name: '控件与数据',
+        meta: {
+          icon: 'md-speedometer',
+          title: '控件与数据',
+        },
+        component: PageEngineDataTime,
+      },
+      
       // {
       //   path: 'vue-component-render',
       //   name: 'vue-控件性能',

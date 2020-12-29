@@ -138,6 +138,7 @@ async function getList(projectId, startAt, finishAt, condition = {}, countType =
   delete condition.pagesize
   delete condition.pageindex
   let total = 0
+  console.log('tableNameList', tableNameList)
   for (let tableName of tableNameList) {
     let rawRecordList = await Knex
       .select(TABLE_COLUMN)
