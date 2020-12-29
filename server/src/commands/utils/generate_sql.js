@@ -528,7 +528,7 @@ TABLE_TEMPLATE[MULIT_T_O_PAGE_ENGINE_CTRL] = `(
   \`stage\` varchar(20) NOT NULL DEFAULT '' COMMENT '收集阶段',
   \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   \`detail\` varchar(255) default null comment '详细信息',
-  PRIMARY KEY (\`id\`)
+  PRIMARY KEY (\`id\`),
   CONSTRAINT FOREIGN KEY(\`engine_item_id\`) REFERENCES __$$${MULIT_T_O_PAGE_ENGINE_ONLOAD}$$__(\`item_id\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,按分钟记录page 控件耗时花销';
 `
