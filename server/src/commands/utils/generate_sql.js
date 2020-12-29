@@ -575,7 +575,7 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_ENGINE_ONLOAD_COUNT] = `(
   PRIMARY KEY (\`id\`),
   KEY \`idx_tenantid\` (\`id\`, \`tenantid\`),
   KEY \`idx_pagecode\` (\`id\`, \`pagecode\`),
-  KEY \`tenantid_pagecode_app_version_url\` (\`tenantid\`, \`pagecode\`, \`app_version\`, \`url\`),
+  KEY \`tenantid_pagecode_app_version_url\` (\`tenantid\`, \`pagecode\`, \`app_version\`, \`url\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,记录page 加载平均耗时';
 `
 TABLE_TEMPLATE[MULIT_R_O_PAGE_ENGINE_CTRL_DATA_TIME] = `(
@@ -612,7 +612,7 @@ TABLE_TEMPLATE[MULIT_T_R_PAGE_PERFORMANCE] = `(
   \`create_time\` int(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   \`update_time\` int(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (\`id\`),
-  KEY \`idx_url\` (\`id\`, \`url\`),
+  KEY \`idx_url\` (\`id\`, \`url\`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='按项目,记录首次页面 加载平均耗时';
 `
 
