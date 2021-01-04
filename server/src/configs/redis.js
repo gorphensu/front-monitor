@@ -3,7 +3,7 @@ import env from '~/src/configs/env'
 
 // 开发环境配置
 const development = {
-  host: '47.112.112.79',
+  host: '172.16.0.125',
   port: '6379'
 }
 // 测试环境配置

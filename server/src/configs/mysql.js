@@ -8,7 +8,7 @@ import env from '~/src/configs/env'
 const development = {
 
   /* normal */
-  host: '47.112.112.79',
+  host: '172.16.0.139',
   port: '3306',
   user: 'root',
   password: '123456',
