@@ -27,7 +27,7 @@
     "@babel/core": "^7.1.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-plugin-root-import": "^6.1.0",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
